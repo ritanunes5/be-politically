@@ -26,8 +26,10 @@ const Landing = () => {
 
           {/* Title */}
           <div className="text-center space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold font-display text-gradient">
-              Be+Politic
+            <h1 className="text-4xl md:text-5xl font-bold font-display">
+              <span className="text-politic-600 dark:text-politic-400">Be</span>
+              <span className="text-politic-500 dark:text-politic-300">+</span>
+              <span className="text-politic-700 dark:text-politic-400">Politic</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Informação política imparcial para jovens cidadãos
