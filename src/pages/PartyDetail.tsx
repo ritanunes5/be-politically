@@ -2,58 +2,10 @@ import Layout from '@/components/Layout';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Heart, History, Lightbulb, Scale, FileText, Activity, Bell } from 'lucide-react';
+import { ArrowLeft, Heart, History, Scale, FileText, Activity, Bell } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-const partiesDetails: Record<string, {
-  name: string;
-  abbreviation: string;
-  color: string;
-  founded: string;
-  ideology: string;
-  history: string;
-  values: string[];
-  proposals: { title: string; description: string }[];
-  recentActivity: { date: string; description: string }[];
-}> = {
-  ps: {
-    name: 'Partido Socialista',
-    abbreviation: 'PS',
-    color: '#FF66B2',
-    founded: '1973',
-    ideology: 'Social-democracia, Europeísmo',
-    history: 'O Partido Socialista foi fundado em 1973 na cidade alemã de Bad Münstereifel. É um partido de centro-esquerda que tem alternado no poder com o PSD desde a instauração da democracia em Portugal.',
-    values: ['Justiça social', 'Igualdade de oportunidades', 'Estado social forte', 'Integração europeia', 'Solidariedade'],
-    proposals: [
-      { title: 'Habitação acessível', description: 'Construção de habitação pública e regulação do mercado de arrendamento.' },
-      { title: 'Transição climática', description: 'Investimento em energias renováveis e mobilidade sustentável.' },
-      { title: 'Reforço do SNS', description: 'Mais médicos e enfermeiros, redução das listas de espera.' },
-    ],
-    recentActivity: [
-      { date: '5 Dez 2024', description: 'Apresentou proposta de alteração ao orçamento.' },
-      { date: '1 Dez 2024', description: 'Reunião com sindicatos sobre revisão salarial.' },
-    ],
-  },
-  psd: {
-    name: 'Partido Social Democrata',
-    abbreviation: 'PSD',
-    color: '#FF6600',
-    founded: '1974',
-    ideology: 'Liberalismo social, Centro-direita',
-    history: 'O PSD foi fundado em 1974 como PPD (Partido Popular Democrático) e é um dos principais partidos do sistema político português, tendo liderado vários governos.',
-    values: ['Liberdade individual', 'Economia de mercado social', 'Responsabilidade fiscal', 'Reforma do Estado', 'Competitividade'],
-    proposals: [
-      { title: 'Redução de impostos', description: 'Diminuição da carga fiscal sobre famílias e empresas.' },
-      { title: 'Reforma da administração pública', description: 'Modernização e digitalização dos serviços públicos.' },
-      { title: 'Apoio às empresas', description: 'Incentivos fiscais para investimento e inovação.' },
-    ],
-    recentActivity: [
-      { date: '4 Dez 2024', description: 'Proposta de revisão do IRC aprovada em comissão.' },
-      { date: '28 Nov 2024', description: 'Debate parlamentar sobre política económica.' },
-    ],
-  },
-};
+import { partiesDetails } from '@/data/parties';
 
 const PartyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -105,9 +57,13 @@ const PartyDetail = () => {
         >
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-16 h-16 rounded-xl bg-primary-foreground/20 flex items-center justify-center font-bold text-2xl">
-                  {party.abbreviation}
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center overflow-hidden p-2">
+                  <img 
+                    src={party.logo} 
+                    alt={`Logo ${party.name}`}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold font-display">{party.name}</h1>
