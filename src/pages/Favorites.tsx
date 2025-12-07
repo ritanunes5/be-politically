@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Heart, Building2, FileText, Lightbulb, ChevronRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { partiesData } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
 
 interface FavoriteItem {
   id: string;
@@ -66,31 +68,42 @@ const Favorites = () => {
                 renderEmptyState('Nenhum partido guardado')
               ) : (
                 <div className="space-y-3">
-                  {partyFavorites.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors group"
-                    >
-                      <Link to={`/parties/${item.id}`} className="flex items-center gap-3 flex-1">
+                    {partyFavorites.map((item) => {
+                      const partyInfo = partiesData.find(p => p.id === item.id);
+                      return (
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
-                          style={{ backgroundColor: item.color }}
+                          key={item.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors group"
                         >
-                          {item.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                          <Link to={`/parties/${item.id}`} className="flex items-center gap-3 flex-1">
+                            {partyInfo ? (
+                              <PartyLogo 
+                                src={partyInfo.logo} 
+                                alt={partyInfo.name}
+                                size="sm"
+                              />
+                            ) : (
+                              <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
+                                style={{ backgroundColor: item.color }}
+                              >
+                                {item.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                              </div>
+                            )}
+                            <span className="font-medium text-sm">{item.name}</span>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeFavorite(item.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
                         </div>
-                        <span className="font-medium text-sm">{item.name}</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeFavorite(item.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
+                      );
+                    })}
                 </div>
               )}
             </CardContent>
