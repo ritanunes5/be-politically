@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target } from 'lucide-react';
 import { useState } from 'react';
 import { partiesData } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
 
 const proposalsForCompare = [
   { id: 'housing-ps', name: 'Habitação Pública - PS', party: 'PS' },
@@ -125,13 +126,11 @@ const Compare = () => {
                         {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party2}>
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
-                                <img 
-                                  src={party.logo} 
-                                  alt={party.abbreviation}
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
+                              <PartyLogo 
+                                src={party.logo} 
+                                alt={party.abbreviation}
+                                size="xs"
+                              />
                               {party.name}
                             </div>
                           </SelectItem>
@@ -156,13 +155,11 @@ const Compare = () => {
                         {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party1}>
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
-                                <img 
-                                  src={party.logo} 
-                                  alt={party.abbreviation}
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
+                              <PartyLogo 
+                                src={party.logo} 
+                                alt={party.abbreviation}
+                                size="xs"
+                              />
                               {party.name}
                             </div>
                           </SelectItem>
@@ -205,13 +202,11 @@ const Compare = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
-                              <img 
-                                src={party1Data.logo} 
-                                alt={party1Data.abbreviation}
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
+                            <PartyLogo 
+                              src={party1Data.logo} 
+                              alt={party1Data.abbreviation}
+                              size="sm"
+                            />
                             <span className="font-medium text-sm">{party1Data.abbreviation}</span>
                           </div>
                           <p className="text-sm text-muted-foreground">
@@ -220,13 +215,11 @@ const Compare = () => {
                         </div>
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
-                              <img 
-                                src={party2Data.logo} 
-                                alt={party2Data.abbreviation}
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
+                            <PartyLogo 
+                              src={party2Data.logo} 
+                              alt={party2Data.abbreviation}
+                              size="sm"
+                            />
                             <span className="font-medium text-sm">{party2Data.abbreviation}</span>
                           </div>
                           <p className="text-sm text-muted-foreground">

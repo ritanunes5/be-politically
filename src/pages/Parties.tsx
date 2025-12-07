@@ -6,6 +6,7 @@ import { Search, ChevronRight, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
 
 const Parties = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,13 +55,11 @@ const Parties = () => {
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
                     {/* Party Logo */}
-                    <div className="w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center bg-white dark:bg-white/90 shrink-0 p-1">
-                      <img 
-                        src={party.logo} 
-                        alt={`Logo ${party.name}`}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                    <PartyLogo 
+                      src={party.logo} 
+                      alt={`Logo ${party.name}`}
+                      size="md"
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">

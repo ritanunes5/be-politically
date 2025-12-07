@@ -6,6 +6,7 @@ import { ArrowLeft, Heart, History, Scale, FileText, Activity, Bell } from 'luci
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { partiesDetails } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
 
 const PartyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,13 +59,11 @@ const PartyDetail = () => {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-4 mb-2">
-                <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center overflow-hidden p-2">
-                  <img 
-                    src={party.logo} 
-                    alt={`Logo ${party.name}`}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                <PartyLogo 
+                  src={party.logo} 
+                  alt={`Logo ${party.name}`}
+                  size="lg"
+                />
                 <div>
                   <h1 className="text-3xl font-bold font-display">{party.name}</h1>
                   <p className="text-primary-foreground/80">Fundado em {party.founded}</p>
