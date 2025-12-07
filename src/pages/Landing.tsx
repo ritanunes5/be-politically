@@ -27,9 +27,9 @@ const Landing = () => {
           {/* Title */}
           <div className="text-center space-y-3">
             <h1 className="text-4xl md:text-5xl font-bold font-display">
-              <span className="text-politic-600 dark:text-politic-400">Be</span>
-              <span className="text-politic-500 dark:text-politic-300">+</span>
-              <span className="text-politic-700 dark:text-politic-400">Politic</span>
+              <span className="text-politic-700 dark:text-politic-300 drop-shadow-sm">Be</span>
+              <span className="text-politic-600 dark:text-politic-400 drop-shadow-sm">+</span>
+              <span className="text-politic-800 dark:text-politic-200 drop-shadow-sm">Politic</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Informação política imparcial para jovens cidadãos
@@ -57,7 +57,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="text-center py-6 text-muted-foreground text-sm">
-        <p>© 2024 Be+Politic. Todos os direitos reservados.</p>
+        <p>© 2025 Be+Politic. Todos os direitos reservados.</p>
       </footer>
     </div>
   );

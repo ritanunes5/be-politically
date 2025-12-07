@@ -5,73 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Search, ChevronRight, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const partiesData = [
-  {
-    id: 'ps',
-    name: 'Partido Socialista',
-    abbreviation: 'PS',
-    description: 'Partido de centro-esquerda, social-democrata e europeísta.',
-    color: '#FF66B2',
-    ideology: 'Social-democracia',
-  },
-  {
-    id: 'psd',
-    name: 'Partido Social Democrata',
-    abbreviation: 'PSD',
-    description: 'Partido de centro-direita, liberal-conservador e europeísta.',
-    color: '#FF6600',
-    ideology: 'Liberalismo social',
-  },
-  {
-    id: 'chega',
-    name: 'Chega',
-    abbreviation: 'CH',
-    description: 'Partido de direita populista e conservador.',
-    color: '#1C1C1C',
-    ideology: 'Conservadorismo nacional',
-  },
-  {
-    id: 'il',
-    name: 'Iniciativa Liberal',
-    abbreviation: 'IL',
-    description: 'Partido liberal clássico, defensor do mercado livre.',
-    color: '#00AEEF',
-    ideology: 'Liberalismo',
-  },
-  {
-    id: 'be',
-    name: 'Bloco de Esquerda',
-    abbreviation: 'BE',
-    description: 'Partido de esquerda socialista e ecologista.',
-    color: '#E30613',
-    ideology: 'Socialismo democrático',
-  },
-  {
-    id: 'pcp',
-    name: 'Partido Comunista Português',
-    abbreviation: 'PCP',
-    description: 'Partido comunista, defensor do socialismo científico.',
-    color: '#CC0000',
-    ideology: 'Comunismo',
-  },
-  {
-    id: 'pan',
-    name: 'Pessoas-Animais-Natureza',
-    abbreviation: 'PAN',
-    description: 'Partido ecologista focado em direitos dos animais e sustentabilidade.',
-    color: '#00AA55',
-    ideology: 'Ambientalismo',
-  },
-  {
-    id: 'livre',
-    name: 'LIVRE',
-    abbreviation: 'L',
-    description: 'Partido ecologista de esquerda, progressista e europeísta.',
-    color: '#00B140',
-    ideology: 'Ecossocialismo',
-  },
-];
+import { partiesData } from '@/data/parties';
 
 const Parties = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -119,12 +53,13 @@ const Parties = () => {
               <Card className="group cursor-pointer h-full hover:border-primary/50 transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    {/* Party Color Badge */}
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-primary-foreground font-bold text-lg shrink-0"
-                      style={{ backgroundColor: party.color }}
-                    >
-                      {party.abbreviation}
+                    {/* Party Logo */}
+                    <div className="w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center bg-white dark:bg-white/90 shrink-0 p-1">
+                      <img 
+                        src={party.logo} 
+                        alt={`Logo ${party.name}`}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">

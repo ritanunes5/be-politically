@@ -5,15 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target } from 'lucide-react';
 import { useState } from 'react';
-
-const partiesForCompare = [
-  { id: 'ps', name: 'Partido Socialista', abbreviation: 'PS', color: '#FF66B2' },
-  { id: 'psd', name: 'Partido Social Democrata', abbreviation: 'PSD', color: '#FF6600' },
-  { id: 'chega', name: 'Chega', abbreviation: 'CH', color: '#1C1C1C' },
-  { id: 'il', name: 'Iniciativa Liberal', abbreviation: 'IL', color: '#00AEEF' },
-  { id: 'be', name: 'Bloco de Esquerda', abbreviation: 'BE', color: '#E30613' },
-  { id: 'pcp', name: 'Partido Comunista Português', abbreviation: 'PCP', color: '#CC0000' },
-];
+import { partiesData } from '@/data/parties';
 
 const proposalsForCompare = [
   { id: 'housing-ps', name: 'Habitação Pública - PS', party: 'PS' },
@@ -61,6 +53,18 @@ const partyComparisonData: Record<string, { economy: string; health: string; env
     environment: 'Equilíbrio entre desenvolvimento e ambiente.',
     housing: 'Acesso à propriedade, combate à especulação.',
   },
+  pan: {
+    economy: 'Economia sustentável, economia circular.',
+    health: 'Prevenção, saúde mental, bem-estar animal.',
+    environment: 'Emergência climática, transição energética urgente.',
+    housing: 'Habitação sustentável, reabilitação urbana.',
+  },
+  livre: {
+    economy: 'Rendimento básico, economia verde.',
+    health: 'SNS forte, saúde mental prioritária.',
+    environment: 'Neutralidade carbónica 2040, biodiversidade.',
+    housing: 'Direito à habitação, regulação de rendas.',
+  },
 };
 
 const Compare = () => {
@@ -76,8 +80,8 @@ const Compare = () => {
     }
   };
 
-  const party1Data = party1 ? partiesForCompare.find(p => p.id === party1) : null;
-  const party2Data = party2 ? partiesForCompare.find(p => p.id === party2) : null;
+  const party1Data = party1 ? partiesData.find(p => p.id === party1) : null;
+  const party2Data = party2 ? partiesData.find(p => p.id === party2) : null;
 
   return (
     <Layout>
@@ -118,13 +122,16 @@ const Compare = () => {
                         <SelectValue placeholder="Selecionar partido" />
                       </SelectTrigger>
                       <SelectContent>
-                        {partiesForCompare.map((party) => (
+                        {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party2}>
                             <div className="flex items-center gap-2">
-                              <div 
-                                className="w-4 h-4 rounded-full" 
-                                style={{ backgroundColor: party.color }}
-                              />
+                              <div className="w-6 h-6 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
+                                <img 
+                                  src={party.logo} 
+                                  alt={party.abbreviation}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
                               {party.name}
                             </div>
                           </SelectItem>
@@ -146,13 +153,16 @@ const Compare = () => {
                         <SelectValue placeholder="Selecionar partido" />
                       </SelectTrigger>
                       <SelectContent>
-                        {partiesForCompare.map((party) => (
+                        {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party1}>
                             <div className="flex items-center gap-2">
-                              <div 
-                                className="w-4 h-4 rounded-full" 
-                                style={{ backgroundColor: party.color }}
-                              />
+                              <div className="w-6 h-6 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
+                                <img 
+                                  src={party.logo} 
+                                  alt={party.abbreviation}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
                               {party.name}
                             </div>
                           </SelectItem>
@@ -195,11 +205,12 @@ const Compare = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <div 
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground"
-                              style={{ backgroundColor: party1Data.color }}
-                            >
-                              {party1Data.abbreviation}
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
+                              <img 
+                                src={party1Data.logo} 
+                                alt={party1Data.abbreviation}
+                                className="w-full h-full object-contain"
+                              />
                             </div>
                             <span className="font-medium text-sm">{party1Data.abbreviation}</span>
                           </div>
@@ -209,11 +220,12 @@ const Compare = () => {
                         </div>
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <div 
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground"
-                              style={{ backgroundColor: party2Data.color }}
-                            >
-                              {party2Data.abbreviation}
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center p-0.5">
+                              <img 
+                                src={party2Data.logo} 
+                                alt={party2Data.abbreviation}
+                                className="w-full h-full object-contain"
+                              />
                             </div>
                             <span className="font-medium text-sm">{party2Data.abbreviation}</span>
                           </div>
