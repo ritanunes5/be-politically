@@ -44,7 +44,11 @@ const Layout = ({ children }: LayoutProps) => {
             {/* Logo */}
             <Link to="/home" className="flex items-center gap-2">
               <img src={logo} alt="Be+Politic" className="w-10 h-10 rounded-full" />
-              <span className="font-display font-bold text-lg text-gradient hidden sm:block">Be+Politic</span>
+              <span className="font-display font-bold text-lg hidden sm:block">
+                <span className="text-politic-700 dark:text-politic-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Be</span>
+                <span className="text-politic-500 dark:text-politic-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">+</span>
+                <span className="text-politic-800 dark:text-politic-200 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Politic</span>
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
