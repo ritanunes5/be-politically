@@ -16,33 +16,33 @@ export type Database = {
     Tables: {
       news_articles: {
         Row: {
-          category: string | null
+          category: string
           created_at: string | null
           id: string
           published_at: string | null
-          source: string | null
+          source: string
           summary: string | null
-          title: string | null
+          title: string
           url: string | null
         }
         Insert: {
-          category?: string | null
+          category: string
           created_at?: string | null
           id?: string
           published_at?: string | null
-          source?: string | null
+          source: string
           summary?: string | null
-          title?: string | null
+          title: string
           url?: string | null
         }
         Update: {
-          category?: string | null
+          category?: string
           created_at?: string | null
           id?: string
           published_at?: string | null
-          source?: string | null
+          source?: string
           summary?: string | null
-          title?: string | null
+          title?: string
           url?: string | null
         }
         Relationships: []
