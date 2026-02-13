@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const RSS_FEEDS = [
-  { url: "https://www.publico.pt/rss/politica", source: "Público" },
+  { url: "https://feeds.feedburner.com/PublicoPolitica", source: "Público" },
   { url: "https://www.rtp.pt/noticias/rss/politica", source: "RTP" },
 ];
 
