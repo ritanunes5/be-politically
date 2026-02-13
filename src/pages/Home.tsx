@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Newspaper, 
   Building2, 
@@ -10,32 +12,20 @@ import {
   GitCompare, 
   Sparkles,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 
-const newsItems = [
-  {
-    id: 1,
-    title: 'Parlamento aprova novo orçamento de estado',
-    summary: 'O documento foi aprovado com votos favoráveis da maioria parlamentar...',
-    date: '6 Dez 2025',
-    tag: 'Economia',
-  },
-  {
-    id: 2,
-    title: 'Novas medidas ambientais propostas',
-    summary: 'Conjunto de propostas visa reduzir emissões de carbono em 40% até 2030...',
-    date: '5 Dez 2025',
-    tag: 'Ambiente',
-  },
-  {
-    id: 3,
-    title: 'Debate sobre reforma da saúde',
-    summary: 'Partidos apresentam visões distintas sobre o futuro do sistema nacional de saúde...',
-    date: '5 Dez 2025',
-    tag: 'Saúde',
-  },
-];
+type NewsArticle = {
+  id: string;
+  title: string | null;
+  summary: string | null;
+  url: string | null;
+  published_at: string | null;
+  source: string;
+  category: string;
+};
 
 const quickActions = [
   { to: '/parties', icon: Building2, label: 'Ver Partidos', color: 'from-politic-600 to-politic-400' },
@@ -45,6 +35,31 @@ const quickActions = [
 
 const Home = () => {
   const { user } = useAuth();
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      const { data, error } = await supabase
+        .from('news_articles')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(10);
+      
+      if (!error && data) {
+        setNews(data as NewsArticle[]);
+      }
+      setLoading(false);
+    };
+    fetchNews();
+  }, []);
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('pt-PT', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  };
 
   return (
     <Layout>
@@ -97,29 +112,49 @@ const Home = () => {
             <Newspaper className="w-5 h-5 text-primary" />
             Notícias do Dia
           </h2>
-          <div className="grid gap-4">
-            {newsItems.map((news) => (
-              <Card key={news.id} className="group cursor-pointer hover:border-primary/50 transition-all">
-                <CardContent className="p-5">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                          {news.tag}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{news.date}</span>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : news.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Sem notícias disponíveis.</p>
+          ) : (
+            <div className="grid gap-4">
+              {news.map((article) => (
+                <a
+                  key={article.id}
+                  href={article.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Card className="group cursor-pointer hover:border-primary/50 transition-all">
+                    <CardContent className="p-5">
+                      <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                              {article.source}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(article.published_at)}
+                            </span>
+                          </div>
+                          <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                            {article.title}
+                          </h3>
+                          {article.summary && (
+                            <p className="text-muted-foreground text-sm line-clamp-2">{article.summary}</p>
+                          )}
+                        </div>
+                        <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
                       </div>
-                      <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                        {news.title}
-                      </h3>
-                      <p className="text-muted-foreground text-sm">{news.summary}</p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* AI Feature Preview */}
