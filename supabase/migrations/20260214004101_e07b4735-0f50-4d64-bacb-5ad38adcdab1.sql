@@ -1,0 +1,1 @@
+DELETE FROM news_articles WHERE id = '31403b02-9df5-47a2-9dd8-1e67402aa25a';
