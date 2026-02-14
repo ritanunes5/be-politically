@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 import { 
   Newspaper, 
   Building2, 
@@ -17,6 +19,17 @@ import {
   Loader2
 } from 'lucide-react';
 
+const TOPIC_COLORS: Record<string, string> = {
+  "Habitação": "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  "Ambiente": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  "Saúde": "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30",
+  "Educação": "bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30",
+  "Economia": "bg-violet-500/15 text-violet-700 dark:text-violet-400 border-violet-500/30",
+  "Infraestruturas": "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
+  "Segurança": "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
+  "Proteção Social": "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 border-cyan-500/30",
+};
+
 type NewsArticle = {
   id: string;
   title: string | null;
@@ -25,6 +38,7 @@ type NewsArticle = {
   published_at: string | null;
   source: string;
   category: string;
+  topic: string | null;
 };
 
 const quickActions = [
@@ -132,10 +146,15 @@ const Home = () => {
                     <CardContent className="p-5">
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                               {article.source}
                             </span>
+                            {article.topic && (
+                              <Badge variant="outline" className={cn("text-xs", TOPIC_COLORS[article.topic] || "")}>
+                                {article.topic}
+                              </Badge>
+                            )}
                             <span className="text-xs text-muted-foreground">
                               {formatDate(article.published_at)}
                             </span>
