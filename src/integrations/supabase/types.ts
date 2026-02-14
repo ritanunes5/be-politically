@@ -23,6 +23,7 @@ export type Database = {
           source: string
           summary: string | null
           title: string
+          topic: string | null
           url: string | null
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           source: string
           summary?: string | null
           title: string
+          topic?: string | null
           url?: string | null
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           source?: string
           summary?: string | null
           title?: string
+          topic?: string | null
           url?: string | null
         }
         Relationships: []

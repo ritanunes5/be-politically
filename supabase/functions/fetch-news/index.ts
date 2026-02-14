@@ -20,6 +20,27 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
+const TOPIC_KEYWORDS: Record<string, string[]> = {
+  "Habitação": ["habitação", "habitacao", "arrendamento", "renda", "rendas", "casa", "casas", "imobiliário", "imobiliario", "alojamento", "despejos", "despejo", "inquilinos", "senhorio", "hipoteca"],
+  "Ambiente": ["ambiente", "clima", "climática", "climatica", "carbono", "emissões", "emissoes", "poluição", "poluicao", "sustentável", "sustentavel", "energias renováveis", "renovaveis", "biodiversidade", "reciclagem", "lixo", "resíduos", "residuos"],
+  "Saúde": ["saúde", "saude", "sns", "hospital", "hospitais", "médico", "medico", "médicos", "medicos", "enfermeiro", "vacina", "pandemia", "farmácia", "farmacia", "urgências", "urgencias", "doença", "doenca"],
+  "Educação": ["educação", "educacao", "escola", "escolas", "professor", "professores", "ensino", "universidade", "alunos", "estudantes", "propinas", "creche", "creches", "infantário", "infantario"],
+  "Economia": ["economia", "económica", "economica", "orçamento", "orcamento", "impostos", "imposto", "iva", "irs", "irc", "dívida", "divida", "défice", "defice", "deficit", "inflação", "inflacao", "pib", "salário", "salario", "salários", "salarios", "emprego", "desemprego"],
+  "Infraestruturas": ["infraestrutura", "infraestruturas", "ferrovia", "comboio", "comboios", "autoestrada", "metro", "aeroporto", "ponte", "estrada", "obras", "transportes", "ferrovia", "cp", "tap"],
+  "Segurança": ["segurança", "seguranca", "polícia", "policia", "crime", "criminalidade", "psp", "gnr", "prisão", "prisao", "terrorismo", "defesa", "forças armadas", "forcas armadas", "militar"],
+  "Proteção Social": ["proteção social", "protecao social", "pensões", "pensoes", "reforma", "reformas", "subsídio", "subsidio", "pobreza", "exclusão", "exclusao", "rsi", "abono", "segurança social", "seguranca social"],
+};
+
+function classifyTopic(title: string, summary: string | null): string | null {
+  const text = `${title} ${summary || ""}`.toLowerCase();
+  for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (text.includes(kw)) return topic;
+    }
+  }
+  return null;
+}
+
 async function parseRSSFeed(
   feedUrl: string,
   source: string
@@ -90,6 +111,7 @@ async function parseRSSFeed(
       published_at: publishedAt,
       source,
       category: "Política",
+      topic: classifyTopic(title, description),
     });
   }
 
@@ -125,6 +147,7 @@ Deno.serve(async (req) => {
           published_at: article.published_at,
           source: article.source,
           category: article.category,
+          topic: article.topic,
         },
         { onConflict: "url" }
       );
