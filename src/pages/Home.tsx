@@ -28,6 +28,9 @@ const TOPIC_COLORS: Record<string, string> = {
   "Infraestruturas": "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30",
   "Segurança": "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30",
   "Proteção Social": "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 border-cyan-500/30",
+  "Justiça": "bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border-indigo-500/30",
+  "Política Geral": "bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/30",
+  "Imigração": "bg-teal-500/15 text-teal-700 dark:text-teal-400 border-teal-500/30",
 };
 
 type NewsArticle = {
