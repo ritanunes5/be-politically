@@ -21,12 +21,18 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
+      const { success, error } = await login(email, password);
       if (success) {
         toast.success('Bem-vindo de volta!');
         navigate('/home');
       } else {
-        toast.error('Credenciais inválidas');
+        if (error?.toLowerCase().includes('email not confirmed')) {
+          toast.error('Confirme o seu email antes de entrar.');
+        } else if (error?.toLowerCase().includes('invalid')) {
+          toast.error('Email ou password incorretos.');
+        } else {
+          toast.error(error || 'Erro ao fazer login');
+        }
       }
     } catch (error) {
       toast.error('Erro ao fazer login');

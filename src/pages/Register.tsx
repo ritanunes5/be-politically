@@ -34,12 +34,21 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const success = await register(name, email, password);
+      const { success, error, needsConfirmation } = await register(name, email, password);
       if (success) {
-        toast.success('Conta criada com sucesso!');
-        navigate('/home');
+        if (needsConfirmation) {
+          toast.success('Conta criada! Confirme o seu email para entrar.', { duration: 6000 });
+          navigate('/login');
+        } else {
+          toast.success('Conta criada com sucesso!');
+          navigate('/home');
+        }
       } else {
-        toast.error('Erro ao criar conta');
+        if (error?.toLowerCase().includes('already registered') || error?.toLowerCase().includes('already exists')) {
+          toast.error('Este email já está registado.');
+        } else {
+          toast.error(error || 'Erro ao criar conta');
+        }
       }
     } catch (error) {
       toast.error('Erro ao criar conta');

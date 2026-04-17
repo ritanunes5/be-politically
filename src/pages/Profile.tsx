@@ -13,11 +13,11 @@ const Profile = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-  const [name, setName] = useState(user?.name || '');
+  const [name, setName] = useState(user?.user_metadata?.display_name || '');
   const [email, setEmail] = useState(user?.email || '');
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     toast.success('Sessão terminada');
     navigate('/');
   };
