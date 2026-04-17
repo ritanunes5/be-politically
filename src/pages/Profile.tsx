@@ -16,8 +16,8 @@ const Profile = () => {
   const [name, setName] = useState(user?.user_metadata?.display_name || '');
   const [email, setEmail] = useState(user?.email || '');
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     toast.success('Sessão terminada');
     navigate('/');
   };
