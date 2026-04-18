@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     const customerId = customers.data[0]?.id;
 
-    const origin = req.headers.get("origin") ?? "http://localhost:5173";
+    const origin = Deno.env.get("SITE_URL") ?? "http://localhost:5173";
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -63,8 +63,12 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("create-checkout error:", e);
+    const safeErrors = ["Not authenticated", "Missing Authorization header"];
+    const msg = e instanceof Error && safeErrors.includes(e.message)
+      ? e.message
+      : "Internal error";
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }),
+      JSON.stringify({ error: msg }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

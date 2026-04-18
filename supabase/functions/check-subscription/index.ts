@@ -83,8 +83,12 @@ Deno.serve(async (req) => {
     );
   } catch (e) {
     console.error("check-subscription error:", e);
+    const safeErrors = ["Not authenticated", "Missing Authorization header"];
+    const msg = e instanceof Error && safeErrors.includes(e.message)
+      ? e.message
+      : "Internal error";
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }),
+      JSON.stringify({ error: msg }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
