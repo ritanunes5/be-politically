@@ -1,16 +1,36 @@
 
-The user is asking whether I completed everything planned. Let me assess status:
+User asks if Phase 2 is complete. This is a status question, not an implementation request — no plan needed, just a direct answer.
 
-**Completed:**
-- Phase 1: Auth (Supabase Auth, profiles, user_roles, login/register) ✅
-- Security hardening: RLS lockdown on profiles, `update_profile_safe`, `update_subscription`, `record_usage` RPCs, edge function security ✅
+Phase 2 status check:
+- ✅ Edge functions created: create-checkout, customer-portal, check-subscription, stripe-webhook
+- ✅ Secrets present: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+- ❌ Missing secrets: STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY, SITE_URL
+- ❌ No Stripe products created yet (user said they would create the account and products)
+- ❌ Webhook endpoint not yet registered in Stripe dashboard
+- ❌ No UI yet (/pricing page, upgrade buttons) — but that's Phase 5
 
-**NOT yet completed (Phases 2-5):**
-- Phase 2: Stripe payments, products, checkout/portal/webhook edge functions
-- Phase 3: Usage limits enforcement in UI, `useSubscription` hook, `<PremiumGate>`, comparator limits, favorites/history UI
-- Phase 4: AI edge functions (`ai-explain-topic`, `ai-compare-parties`) + UI buttons
-- Phase 5: `/pricing` page, plan badge in header, profile subscription management
+So backend code is done, but Phase 2 isn't operational until the user completes their side: create Stripe products, paste price IDs, register webhook endpoint, set SITE_URL.
 
-So the answer is: No, only Phase 1 + security fixes done. Phases 2-5 still pending.
+## Status da Fase 2
 
-Present concise status + next step plan.
+**Código backend: pronto ✅**
+- 4 edge functions implementadas e seguras (erros sanitizados, redirect protegido)
+- Secrets `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET` já configurados
+
+**Falta do teu lado para ficar operacional ❌**
+
+1. **Criar produtos no Stripe Dashboard**
+   - Premium Mensal — 4,99€/mês → copiar `price_id` (formato `price_...`)
+   - Premium Anual — 49,99€/ano → copiar `price_id`
+
+2. **Adicionar 3 secrets no Supabase**
+   - `STRIPE_PRICE_MONTHLY` = price_id mensal
+   - `STRIPE_PRICE_YEARLY` = price_id anual
+   - `SITE_URL` = `https://be-politically.lovable.app`
+
+3. **Registar webhook no Stripe**
+   - Endpoint: `https://vbwodbgrfxhsdlclodrp.supabase.co/functions/v1/stripe-webhook`
+   - Eventos: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
+   - Confirmar que o `STRIPE_WEBHOOK_SECRET` corresponde ao deste endpoint
+
+**Resposta curta:** o código está completo, mas a Fase 2 só fica funcional quando criares os produtos, adicionares os 3 secrets e registares o webhook. Depois disso, podemos testar end-to-end e avançar para a Fase 3 (UI de upgrade, limites, gates).
