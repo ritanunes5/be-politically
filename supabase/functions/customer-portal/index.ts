@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (!customers.data.length) throw new Error("No Stripe customer found");
 
-    const origin = req.headers.get("origin") ?? "http://localhost:5173";
+    const origin = Deno.env.get("SITE_URL") ?? "http://localhost:5173";
     const portal = await stripe.billingPortal.sessions.create({
       customer: customers.data[0].id,
       return_url: `${origin}/profile`,
@@ -45,8 +45,12 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("customer-portal error:", e);
+    const safeErrors = ["Not authenticated", "Missing Authorization header", "No Stripe customer found"];
+    const msg = e instanceof Error && safeErrors.includes(e.message)
+      ? e.message
+      : "Internal error";
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }),
+      JSON.stringify({ error: msg }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
