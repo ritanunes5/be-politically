@@ -206,6 +206,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      record_usage: { Args: { p_action_type: string }; Returns: undefined }
+      update_profile_safe: {
+        Args: { p_avatar_url?: string; p_display_name?: string }
+        Returns: undefined
+      }
+      update_subscription: {
+        Args: {
+          p_stripe_customer_id?: string
+          p_stripe_subscription_id?: string
+          p_subscription_period_end?: string
+          p_subscription_status?: Database["public"]["Enums"]["subscription_status"]
+          p_subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
