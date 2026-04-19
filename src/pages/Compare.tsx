@@ -3,10 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target } from 'lucide-react';
-import { useState } from 'react';
+import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
+import PremiumGate from '@/components/PremiumGate';
+import { useSubscription, FREE_LIMITS } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const proposalsForCompare = [
   { id: 'housing-ps', name: 'Habitação Pública - PS', party: 'PS' },
