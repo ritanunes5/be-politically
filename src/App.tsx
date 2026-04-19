@@ -15,6 +15,7 @@ import PartyDetail from "./pages/PartyDetail";
 import Topics from "./pages/Topics";
 import Compare from "./pages/Compare";
 import Favorites from "./pages/Favorites";
+import History from "./pages/History";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import SearchPage from "./pages/Search";
@@ -58,6 +59,7 @@ const AppRoutes = () => (
     <Route path="/topics/:id" element={<ProtectedRoute><Topics /></ProtectedRoute>} />
     <Route path="/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
     <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+    <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
     <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
     <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
