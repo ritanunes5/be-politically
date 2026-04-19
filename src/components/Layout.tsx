@@ -1,17 +1,21 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Building2, 
-  FileText, 
-  GitCompare, 
-  Search, 
-  Heart, 
+import { useSubscription } from '@/hooks/useSubscription';
+import {
+  Building2,
+  FileText,
+  GitCompare,
+  Search,
+  Heart,
   History,
-  Bell, 
+  Bell,
   User,
+  Bot,
   Menu,
-  X
+  X,
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +25,7 @@ const navItems = [
   { to: '/parties', icon: Building2, label: 'Partidos' },
   { to: '/topics', icon: FileText, label: 'Temas' },
   { to: '/compare', icon: GitCompare, label: 'Comparar' },
+  { to: '/ask', icon: Bot, label: 'Pergunta IA' },
   { to: '/search', icon: Search, label: 'Pesquisa' },
   { to: '/favorites', icon: Heart, label: 'Favoritos' },
   { to: '/history', icon: History, label: 'Histórico' },
@@ -34,16 +39,15 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const { user } = useAuth();
+  const { isPremium, loading } = useSubscription();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navigation Bar */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <Link to="/home" className="flex items-center gap-2">
               <img src={logo} alt="Be+Politic" className="w-10 h-10 rounded-full" />
               <span className="font-display font-bold text-lg hidden sm:block">
@@ -53,8 +57,7 @@ const Layout = ({ children }: LayoutProps) => {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden xl:flex items-center gap-1">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.to;
                 return (
@@ -62,8 +65,8 @@ const Layout = ({ children }: LayoutProps) => {
                     key={item.to}
                     to={item.to}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive 
-                        ? 'bg-primary text-primary-foreground' 
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                     }`}
                   >
@@ -74,13 +77,28 @@ const Layout = ({ children }: LayoutProps) => {
               })}
             </nav>
 
-            {/* Right side: Theme toggle & Mobile menu */}
             <div className="flex items-center gap-2">
+              {user && !loading && (
+                isPremium ? (
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-semibold border border-primary/30">
+                    <Crown className="w-3.5 h-3.5" />
+                    Premium
+                  </span>
+                ) : (
+                  <Link
+                    to="/pricing"
+                    className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Upgrade
+                  </Link>
+                )
+              )}
               <ThemeToggle />
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="xl:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -89,9 +107,8 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="lg:hidden border-t border-border bg-card animate-slide-down">
+          <nav className="xl:hidden border-t border-border bg-card animate-slide-down">
             <div className="container mx-auto px-4 py-4 grid grid-cols-2 gap-2">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.to;
@@ -101,8 +118,8 @@ const Layout = ({ children }: LayoutProps) => {
                     to={item.to}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive 
-                        ? 'bg-primary text-primary-foreground' 
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                     }`}
                   >
@@ -111,17 +128,23 @@ const Layout = ({ children }: LayoutProps) => {
                   </Link>
                 );
               })}
+              {user && !isPremium && (
+                <Link
+                  to="/pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="col-span-2 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold bg-primary text-primary-foreground"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Upgrade para Premium
+                </Link>
+              )}
             </div>
           </nav>
         )}
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
 
-      {/* Footer */}
       <footer className="border-t border-border py-6 bg-card/50">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>© 2025 Be+Politic. Informação política imparcial para todos.</p>
