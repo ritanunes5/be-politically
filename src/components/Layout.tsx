@@ -7,6 +7,7 @@ import {
   GitCompare, 
   Search, 
   Heart, 
+  History,
   Bell, 
   User,
   Menu,
@@ -22,6 +23,7 @@ const navItems = [
   { to: '/compare', icon: GitCompare, label: 'Comparar' },
   { to: '/search', icon: Search, label: 'Pesquisa' },
   { to: '/favorites', icon: Heart, label: 'Favoritos' },
+  { to: '/history', icon: History, label: 'Histórico' },
   { to: '/notifications', icon: Bell, label: 'Notificações' },
   { to: '/profile', icon: User, label: 'Perfil' },
 ];

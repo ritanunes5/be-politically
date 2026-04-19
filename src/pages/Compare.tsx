@@ -3,10 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target } from 'lucide-react';
-import { useState } from 'react';
+import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
+import PremiumGate from '@/components/PremiumGate';
+import { useSubscription, FREE_LIMITS } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const proposalsForCompare = [
   { id: 'housing-ps', name: 'Habitação Pública - PS', party: 'PS' },
@@ -69,15 +75,53 @@ const partyComparisonData: Record<string, { economy: string; health: string; env
 };
 
 const Compare = () => {
+  const { user } = useAuth();
+  const { isPremium, canCompare, comparisonsToday, remainingComparisons, refresh } = useSubscription();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [party1, setParty1] = useState<string>('');
   const [party2, setParty2] = useState<string>('');
   const [proposal1, setProposal1] = useState<string>('');
   const [proposal2, setProposal2] = useState<string>('');
   const [showComparison, setShowComparison] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
 
-  const handleCompareParties = () => {
-    if (party1 && party2) {
+  useEffect(() => {
+    const state = location.state as { partyIds?: string[] } | null;
+    if (state?.partyIds && state.partyIds.length >= 2) {
+      setParty1(state.partyIds[0]);
+      setParty2(state.partyIds[1]);
       setShowComparison(true);
+      navigate('/compare', { replace: true });
+    }
+  }, [location.state, navigate]);
+
+  const handleCompareParties = async () => {
+    if (!party1 || !party2) return;
+    if (!canCompare) {
+      setGateOpen(true);
+      return;
+    }
+    setShowComparison(true);
+
+    if (user) {
+      const [usageRes, historyRes] = await Promise.all([
+        supabase.rpc('record_usage', { p_action_type: 'comparison' }),
+        supabase
+          .from('comparison_history')
+          .insert({ user_id: user.id, party_ids: [party1, party2] }),
+      ]);
+      if (usageRes.error) {
+        toast({
+          title: 'Aviso',
+          description: 'Não foi possível registar a utilização.',
+          variant: 'destructive',
+        });
+      }
+      if (historyRes.error) {
+        console.error('history insert error', historyRes.error);
+      }
+      refresh();
     }
   };
 
@@ -86,16 +130,33 @@ const Compare = () => {
 
   return (
     <Layout>
+      <PremiumGate
+        open={gateOpen}
+        onOpenChange={setGateOpen}
+        title="Limite diário atingido"
+        description={`Já usaste as tuas ${FREE_LIMITS.comparisonsPerDay} comparações de hoje. Faz upgrade para Premium e compara sem limites.`}
+      />
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold font-display mb-2 flex items-center gap-3">
-            <GitCompare className="w-8 h-8 text-primary" />
-            Comparador
-          </h1>
-          <p className="text-muted-foreground">
-            Compara partidos políticos ou propostas específicas lado a lado.
-          </p>
+        <div className="animate-fade-in flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold font-display mb-2 flex items-center gap-3">
+              <GitCompare className="w-8 h-8 text-primary" />
+              Comparador
+            </h1>
+            <p className="text-muted-foreground">
+              Compara partidos políticos ou propostas específicas lado a lado.
+            </p>
+          </div>
+          {!isPremium && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span>
+                <span className="font-medium">{comparisonsToday}/{FREE_LIMITS.comparisonsPerDay}</span> hoje
+                {remainingComparisons === 0 && ' — limite atingido'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Tabs for comparison modes */}
