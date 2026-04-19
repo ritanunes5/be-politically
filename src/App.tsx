@@ -19,6 +19,8 @@ import History from "./pages/History";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import SearchPage from "./pages/Search";
+import Ask from "./pages/Ask";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const AppRoutes = () => (
     <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
     <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
+    <Route path="/ask" element={<ProtectedRoute><Ask /></ProtectedRoute>} />
+    <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
