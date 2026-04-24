@@ -2,7 +2,8 @@ import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell, Building2, FileText, Check, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { setUnreadCount } from '@/hooks/useNotifications';
 
 interface Notification {
   id: string;
@@ -67,6 +68,11 @@ const Notifications = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Keep navbar badge in sync with the local notifications state
+  useEffect(() => {
+    setUnreadCount(unreadCount);
+  }, [unreadCount]);
 
   const getTypeIcon = (type: Notification['type']) => {
     switch (type) {

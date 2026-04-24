@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
+import AvatarUpload from '@/components/AvatarUpload';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -179,7 +180,8 @@ const Profile = () => {
                 Dados Pessoais
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              <AvatarUpload />
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">Nome</label>
                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="O teu nome" />
