@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
@@ -34,6 +35,29 @@ const Register = () => {
     setIsLoading(true);
 
     try {
+      // Verify password against breach database before signup
+      try {
+        const { data: pwCheck, error: pwError } = await supabase.functions.invoke('check-password', {
+          body: { password },
+        });
+
+        if (pwError || !pwCheck) {
+          toast.error('Não foi possível verificar a segurança da password. Tenta novamente.');
+          setIsLoading(false);
+          return;
+        }
+
+        if (pwCheck.compromised === true) {
+          toast.error('Esta password já foi exposta em violações de dados. Escolhe outra password.');
+          setIsLoading(false);
+          return;
+        }
+      } catch (pwErr) {
+        toast.error('Não foi possível verificar a segurança da password. Tenta novamente.');
+        setIsLoading(false);
+        return;
+      }
+
       const { success, error, needsConfirmation } = await register(name, email, password);
       if (success) {
         if (needsConfirmation) {
