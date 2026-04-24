@@ -2,8 +2,8 @@ import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search as SearchIcon, Building2, FileText, Lightbulb, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 
 interface SearchResult {
   id: string;
@@ -22,36 +22,63 @@ const allResults: SearchResult[] = [
   { id: 'housing-ps', title: 'Habitação Pública - PS', description: 'Proposta do PS para habitação', type: 'proposal', link: '/parties/ps' },
 ];
 
+const getIcon = (type: SearchResult['type']) => {
+  switch (type) {
+    case 'party': return Building2;
+    case 'topic': return FileText;
+    case 'proposal': return Lightbulb;
+  }
+};
+
+const getTypeLabel = (type: SearchResult['type']) => {
+  switch (type) {
+    case 'party': return 'Partido';
+    case 'topic': return 'Tema';
+    case 'proposal': return 'Proposta';
+  }
+};
+
 const SearchPage = () => {
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryFromUrl = searchParams.get('q') ?? '';
+  const [query, setQuery] = useState(queryFromUrl);
 
-  const results = query.length > 0
-    ? allResults.filter((item) =>
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  // Sync local input when URL changes (e.g., navbar search submission)
+  useEffect(() => {
+    setQuery(queryFromUrl);
+  }, [queryFromUrl]);
 
-  const getIcon = (type: SearchResult['type']) => {
-    switch (type) {
-      case 'party': return Building2;
-      case 'topic': return FileText;
-      case 'proposal': return Lightbulb;
-    }
-  };
+  // Push input changes to the URL (debounced via effect)
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      const trimmed = query.trim();
+      const current = searchParams.get('q') ?? '';
+      if (trimmed === current) return;
+      const next = new URLSearchParams(searchParams);
+      if (trimmed.length === 0) {
+        next.delete('q');
+      } else {
+        next.set('q', trimmed);
+      }
+      setSearchParams(next, { replace: true });
+    }, 250);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
-  const getTypeLabel = (type: SearchResult['type']) => {
-    switch (type) {
-      case 'party': return 'Partido';
-      case 'topic': return 'Tema';
-      case 'proposal': return 'Proposta';
-    }
-  };
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length === 0) return [];
+    return allResults.filter(
+      (item) =>
+        item.title.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q)
+    );
+  }, [query]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 space-y-6">
-        {/* Header */}
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold font-display mb-2 flex items-center gap-3">
             <SearchIcon className="w-8 h-8 text-primary" />
@@ -62,7 +89,6 @@ const SearchPage = () => {
           </p>
         </div>
 
-        {/* Search Input */}
         <div className="relative max-w-2xl animate-slide-up">
           <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
           <Input
@@ -74,11 +100,10 @@ const SearchPage = () => {
           />
         </div>
 
-        {/* Results */}
-        {query.length > 0 && (
+        {query.trim().length > 0 && (
           <div className="space-y-4 animate-slide-up">
             <p className="text-sm text-muted-foreground">
-              {results.length} resultado{results.length !== 1 ? 's' : ''} para "{query}"
+              {results.length} resultado{results.length !== 1 ? 's' : ''} para "{query.trim()}"
             </p>
 
             {results.length === 0 ? (
@@ -123,8 +148,7 @@ const SearchPage = () => {
           </div>
         )}
 
-        {/* Empty State */}
-        {query.length === 0 && (
+        {query.trim().length === 0 && (
           <div className="text-center py-12 animate-fade-in">
             <SearchIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-20" />
             <p className="text-lg text-muted-foreground">
