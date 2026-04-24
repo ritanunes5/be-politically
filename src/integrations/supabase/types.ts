@@ -206,6 +206,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_premium: { Args: { _user_id: string }; Returns: boolean }
       record_usage: { Args: { p_action_type: string }; Returns: undefined }
       update_profile_safe: {
         Args: { p_avatar_url?: string; p_display_name?: string }
