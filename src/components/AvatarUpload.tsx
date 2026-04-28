@@ -44,12 +44,11 @@ const AvatarUpload = () => {
         .upload(path, blob, { upsert: true, contentType: blob.type || `image/${ext}` });
       if (upErr) throw upErr;
 
-      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
-      const publicUrl = `${pub.publicUrl}?v=${Date.now()}`;
-
+      // Store the storage path (not a public URL). The bucket is private and
+      // we resolve signed URLs on read in useProfile.
       const { error: updErr } = await supabase
         .from('profiles')
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: path })
         .eq('user_id', user.id);
       if (updErr) throw updErr;
 
