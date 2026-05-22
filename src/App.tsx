@@ -22,6 +22,7 @@ import SearchPage from "./pages/Search";
 import Ask from "./pages/Ask";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const AppRoutes = () => (
     <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
     <Route path="/ask" element={<ProtectedRoute><Ask /></ProtectedRoute>} />
     <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+    <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
