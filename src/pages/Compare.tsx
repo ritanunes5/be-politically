@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GitCompare, Building2, FileText, ArrowRight, Scale, Lightbulb, Target, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { GitCompare, Building2, FileText, ArrowRight, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
@@ -13,65 +13,39 @@ import { useSubscription, FREE_LIMITS } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { usePartyByKey } from '@/hooks/useParties';
+import { useProposalsByParty, type DbProposal } from '@/hooks/useProposals';
 
-const proposalsForCompare = [
-  { id: 'housing-ps', name: 'Habitação Pública - PS', party: 'PS' },
-  { id: 'housing-psd', name: 'Incentivos Fiscais Habitação - PSD', party: 'PSD' },
-  { id: 'tax-ps', name: 'Reforma Fiscal - PS', party: 'PS' },
-  { id: 'tax-il', name: 'Taxa Única IRS - IL', party: 'IL' },
-  { id: 'health-be', name: 'SNS Universal - BE', party: 'BE' },
-  { id: 'health-psd', name: 'Parceria Público-Privada - PSD', party: 'PSD' },
-];
-
-const partyComparisonData: Record<string, { economy: string; health: string; environment: string; housing: string }> = {
-  ps: {
-    economy: 'Investimento público, impostos progressivos, apoio ao Estado Social.',
-    health: 'Reforço do SNS, mais profissionais, redução de listas de espera.',
-    environment: 'Meta carbono neutro 2050, investimento em renováveis.',
-    housing: 'Construção pública, regulação de rendas, apoio a jovens.',
-  },
-  psd: {
-    economy: 'Redução de impostos, menos burocracia, apoio a empresas.',
-    health: 'Parcerias público-privadas, liberdade de escolha.',
-    environment: 'Transição energética gradual, incentivos de mercado.',
-    housing: 'Incentivos fiscais, liberalização do mercado.',
-  },
-  il: {
-    economy: 'Taxa única de IRS, redução drástica de impostos.',
-    health: 'Cheque-saúde, concorrência entre prestadores.',
-    environment: 'Mercado de carbono, inovação tecnológica.',
-    housing: 'Liberalização total do mercado de arrendamento.',
-  },
-  be: {
-    economy: 'Aumento do salário mínimo, nacionalizações estratégicas.',
-    health: 'SNS exclusivamente público e universal.',
-    environment: 'Fim dos combustíveis fósseis até 2040.',
-    housing: 'Controlo de rendas, requisição de casas devolutas.',
-  },
-  pcp: {
-    economy: 'Nacionalização de setores estratégicos, salários dignos.',
-    health: 'SNS público, gratuito e universal.',
-    environment: 'Transição justa, soberania energética.',
-    housing: 'Direito à habitação, construção pública massiva.',
-  },
-  chega: {
-    economy: 'Redução do Estado, liberalização económica.',
-    health: 'Eficiência na gestão pública, combate ao desperdício.',
-    environment: 'Equilíbrio entre desenvolvimento e ambiente.',
-    housing: 'Acesso à propriedade, combate à especulação.',
-  },
-  pan: {
-    economy: 'Economia sustentável, economia circular.',
-    health: 'Prevenção, saúde mental, bem-estar animal.',
-    environment: 'Emergência climática, transição energética urgente.',
-    housing: 'Habitação sustentável, reabilitação urbana.',
-  },
-  livre: {
-    economy: 'Rendimento básico, economia verde.',
-    health: 'SNS forte, saúde mental prioritária.',
-    environment: 'Neutralidade carbónica 2040, biodiversidade.',
-    housing: 'Direito à habitação, regulação de rendas.',
-  },
+const ProposalCell = ({ proposal }: { proposal?: DbProposal }) => {
+  if (!proposal) {
+    return <p className="text-sm text-muted-foreground italic">Sem proposta validada nesta categoria.</p>;
+  }
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium">{proposal.title}</p>
+      <p className="text-sm text-muted-foreground">{proposal.neutral_summary}</p>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pt-1">
+        {proposal.official_source_url && (
+          <a
+            href={proposal.official_source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-primary hover:underline"
+          >
+            <ExternalLink className="w-3 h-3" />
+            Fonte
+          </a>
+        )}
+        {proposal.source_document_name && <span>{proposal.source_document_name}</span>}
+        {proposal.last_verified_date && (
+          <span className="inline-flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3" />
+            {new Date(proposal.last_verified_date).toLocaleDateString('pt-PT')}
+          </span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const Compare = () => {
@@ -81,10 +55,13 @@ const Compare = () => {
   const navigate = useNavigate();
   const [party1, setParty1] = useState<string>('');
   const [party2, setParty2] = useState<string>('');
-  const [proposal1, setProposal1] = useState<string>('');
-  const [proposal2, setProposal2] = useState<string>('');
   const [showComparison, setShowComparison] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
+
+  const { data: dbParty1 } = usePartyByKey(party1 || undefined);
+  const { data: dbParty2 } = usePartyByKey(party2 || undefined);
+  const { data: proposals1 = [] } = useProposalsByParty(dbParty1?.id);
+  const { data: proposals2 = [] } = useProposalsByParty(dbParty2?.id);
 
   useEffect(() => {
     const state = location.state as { partyIds?: string[] } | null;
@@ -125,8 +102,19 @@ const Compare = () => {
     }
   };
 
-  const party1Data = party1 ? partiesData.find(p => p.id === party1) : null;
-  const party2Data = party2 ? partiesData.find(p => p.id === party2) : null;
+  const party1Data = party1 ? partiesData.find((p) => p.id === party1) : null;
+  const party2Data = party2 ? partiesData.find((p) => p.id === party2) : null;
+
+  // Union of categories across both parties, alphabetical
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    proposals1.forEach((p) => set.add(p.category));
+    proposals2.forEach((p) => set.add(p.category));
+    return Array.from(set).sort();
+  }, [proposals1, proposals2]);
+
+  const firstByCategory = (list: DbProposal[], category: string) =>
+    list.find((p) => p.category === category);
 
   return (
     <Layout>
@@ -137,7 +125,6 @@ const Compare = () => {
         description={`Já usaste as tuas ${FREE_LIMITS.comparisonsPerDay} comparações de hoje. Faz upgrade para Premium e compara sem limites.`}
       />
       <div className="container mx-auto px-4 py-8 space-y-6">
-        {/* Header */}
         <div className="animate-fade-in flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold font-display mb-2 flex items-center gap-3">
@@ -145,7 +132,7 @@ const Compare = () => {
               Comparador
             </h1>
             <p className="text-muted-foreground">
-              Compara partidos políticos ou propostas específicas lado a lado.
+              Compara partidos políticos lado a lado, usando apenas propostas validadas com fonte oficial.
             </p>
           </div>
           {!isPremium && (
@@ -159,20 +146,14 @@ const Compare = () => {
           )}
         </div>
 
-        {/* Tabs for comparison modes */}
         <Tabs defaultValue="parties" className="animate-slide-up">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-1">
             <TabsTrigger value="parties" className="flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Comparar Partidos
             </TabsTrigger>
-            <TabsTrigger value="proposals" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Comparar Propostas
-            </TabsTrigger>
           </TabsList>
 
-          {/* Compare Parties */}
           <TabsContent value="parties" className="space-y-6 mt-6">
             <Card>
               <CardContent className="p-6">
@@ -187,11 +168,7 @@ const Compare = () => {
                         {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party2}>
                             <div className="flex items-center gap-2">
-                              <PartyLogo 
-                                src={party.logo} 
-                                alt={party.abbreviation}
-                                size="xs"
-                              />
+                              <PartyLogo src={party.logo} alt={party.abbreviation} size="xs" />
                               {party.name}
                             </div>
                           </SelectItem>
@@ -216,11 +193,7 @@ const Compare = () => {
                         {partiesData.map((party) => (
                           <SelectItem key={party.id} value={party.id} disabled={party.id === party1}>
                             <div className="flex items-center gap-2">
-                              <PartyLogo 
-                                src={party.logo} 
-                                alt={party.abbreviation}
-                                size="xs"
-                              />
+                              <PartyLogo src={party.logo} alt={party.abbreviation} size="xs" />
                               {party.name}
                             </div>
                           </SelectItem>
@@ -231,8 +204,8 @@ const Compare = () => {
                 </div>
 
                 <div className="mt-6 flex justify-center">
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     onClick={handleCompareParties}
                     disabled={!party1 || !party2}
                   >
@@ -243,49 +216,39 @@ const Compare = () => {
               </CardContent>
             </Card>
 
-            {/* Comparison Results */}
-            {showComparison && party1Data && party2Data && (
+            {showComparison && party1Data && party2Data && categories.length === 0 && (
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                  Ainda não existem propostas validadas para comparar entre estes partidos.
+                </CardContent>
+              </Card>
+            )}
+
+            {showComparison && party1Data && party2Data && categories.length > 0 && (
               <div className="grid md:grid-cols-2 gap-6 animate-scale-in">
-                {[
-                  { key: 'economy', label: 'Economia', icon: Target },
-                  { key: 'health', label: 'Saúde', icon: Scale },
-                  { key: 'environment', label: 'Ambiente', icon: Lightbulb },
-                  { key: 'housing', label: 'Habitação', icon: Building2 },
-                ].map((topic) => (
-                  <Card key={topic.key}>
+                {categories.map((category) => (
+                  <Card key={category} className="md:col-span-2">
                     <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <topic.icon className="w-5 h-5 text-primary" />
-                        {topic.label}
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-primary" />
+                        {category}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <PartyLogo 
-                              src={party1Data.logo} 
-                              alt={party1Data.abbreviation}
-                              size="sm"
-                            />
+                            <PartyLogo src={party1Data.logo} alt={party1Data.abbreviation} size="sm" />
                             <span className="font-medium text-sm">{party1Data.abbreviation}</span>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {partyComparisonData[party1]?.[topic.key as keyof typeof partyComparisonData['ps']] || 'Sem informação disponível.'}
-                          </p>
+                          <ProposalCell proposal={firstByCategory(proposals1, category)} />
                         </div>
                         <div className="p-4 rounded-xl bg-secondary/50">
                           <div className="flex items-center gap-2 mb-2">
-                            <PartyLogo 
-                              src={party2Data.logo} 
-                              alt={party2Data.abbreviation}
-                              size="sm"
-                            />
+                            <PartyLogo src={party2Data.logo} alt={party2Data.abbreviation} size="sm" />
                             <span className="font-medium text-sm">{party2Data.abbreviation}</span>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {partyComparisonData[party2]?.[topic.key as keyof typeof partyComparisonData['ps']] || 'Sem informação disponível.'}
-                          </p>
+                          <ProposalCell proposal={firstByCategory(proposals2, category)} />
                         </div>
                       </div>
                     </CardContent>
@@ -293,69 +256,6 @@ const Compare = () => {
                 ))}
               </div>
             )}
-          </TabsContent>
-
-          {/* Compare Proposals */}
-          <TabsContent value="proposals" className="space-y-6 mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid md:grid-cols-5 gap-4 items-end">
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-sm font-medium">Proposta 1</label>
-                    <Select value={proposal1} onValueChange={setProposal1}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecionar proposta" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {proposalsForCompare.map((proposal) => (
-                          <SelectItem key={proposal.id} value={proposal.id} disabled={proposal.id === proposal2}>
-                            {proposal.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                      <ArrowRight className="w-5 h-5 text-muted-foreground rotate-90 md:rotate-0" />
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-sm font-medium">Proposta 2</label>
-                    <Select value={proposal2} onValueChange={setProposal2}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecionar proposta" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {proposalsForCompare.map((proposal) => (
-                          <SelectItem key={proposal.id} value={proposal.id} disabled={proposal.id === proposal1}>
-                            {proposal.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-center">
-                  <Button 
-                    size="lg"
-                    disabled={!proposal1 || !proposal2}
-                  >
-                    <GitCompare className="w-4 h-4 mr-2" />
-                    Comparar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                Selecione duas propostas para ver a comparação detalhada.
-              </p>
-            </div>
           </TabsContent>
         </Tabs>
       </div>

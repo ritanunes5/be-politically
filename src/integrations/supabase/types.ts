@@ -101,6 +101,45 @@ export type Database = {
         }
         Relationships: []
       }
+      parties: {
+        Row: {
+          acronym: string
+          created_at: string
+          existing_party_key: string
+          id: string
+          last_verified_date: string | null
+          logo_url: string | null
+          name: string
+          official_website: string | null
+          short_neutral_description: string | null
+          updated_at: string
+        }
+        Insert: {
+          acronym: string
+          created_at?: string
+          existing_party_key: string
+          id?: string
+          last_verified_date?: string | null
+          logo_url?: string | null
+          name: string
+          official_website?: string | null
+          short_neutral_description?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acronym?: string
+          created_at?: string
+          existing_party_key?: string
+          id?: string
+          last_verified_date?: string | null
+          logo_url?: string | null
+          name?: string
+          official_website?: string | null
+          short_neutral_description?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -148,6 +187,94 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      proposal_sources: {
+        Row: {
+          created_at: string
+          id: string
+          original_excerpt: string | null
+          proposal_id: string
+          source_document_name: string | null
+          source_type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_excerpt?: string | null
+          proposal_id: string
+          source_document_name?: string | null
+          source_type: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_excerpt?: string | null
+          proposal_id?: string
+          source_document_name?: string | null
+          source_type?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_sources_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposals: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_validated: boolean
+          last_verified_date: string | null
+          neutral_summary: string
+          official_source_url: string | null
+          party_id: string
+          source_document_name: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_validated?: boolean
+          last_verified_date?: string | null
+          neutral_summary: string
+          official_source_url?: string | null
+          party_id: string
+          source_document_name?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_validated?: boolean
+          last_verified_date?: string | null
+          neutral_summary?: string
+          official_source_url?: string | null
+          party_id?: string
+          source_document_name?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       usage_tracking: {
         Row: {
