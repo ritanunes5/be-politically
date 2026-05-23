@@ -1,76 +1,11 @@
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronRight, Home, Heart as HeartIcon, Leaf, GraduationCap, Briefcase, Shield, Building, Stethoscope } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { topicsData } from '@/data/topics';
 
-const topicsData = [
-  {
-    id: 'housing',
-    name: 'Habitação',
-    description: 'Políticas de habitação, arrendamento e construção pública.',
-    icon: Home,
-    color: 'from-orange-500 to-amber-400',
-    parties: 8,
-  },
-  {
-    id: 'health',
-    name: 'Saúde',
-    description: 'Sistema Nacional de Saúde, hospitais e cuidados primários.',
-    icon: Stethoscope,
-    color: 'from-red-500 to-rose-400',
-    parties: 8,
-  },
-  {
-    id: 'environment',
-    name: 'Ambiente',
-    description: 'Transição energética, sustentabilidade e combate às alterações climáticas.',
-    icon: Leaf,
-    color: 'from-green-500 to-emerald-400',
-    parties: 8,
-  },
-  {
-    id: 'education',
-    name: 'Educação',
-    description: 'Sistema educativo, ensino superior e formação profissional.',
-    icon: GraduationCap,
-    color: 'from-blue-500 to-cyan-400',
-    parties: 8,
-  },
-  {
-    id: 'economy',
-    name: 'Economia',
-    description: 'Políticas fiscais, emprego e desenvolvimento económico.',
-    icon: Briefcase,
-    color: 'from-politic-600 to-politic-400',
-    parties: 8,
-  },
-  {
-    id: 'security',
-    name: 'Segurança',
-    description: 'Forças de segurança, justiça e combate à criminalidade.',
-    icon: Shield,
-    color: 'from-slate-600 to-slate-400',
-    parties: 8,
-  },
-  {
-    id: 'infrastructure',
-    name: 'Infraestruturas',
-    description: 'Transportes, obras públicas e ordenamento do território.',
-    icon: Building,
-    color: 'from-indigo-500 to-violet-400',
-    parties: 8,
-  },
-  {
-    id: 'social',
-    name: 'Proteção Social',
-    description: 'Segurança social, apoios às famílias e combate à pobreza.',
-    icon: HeartIcon,
-    color: 'from-pink-500 to-rose-400',
-    parties: 8,
-  },
-];
 
 const Topics = () => {
   const [searchTerm, setSearchTerm] = useState('');
