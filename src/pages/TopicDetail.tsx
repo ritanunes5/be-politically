@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getTopicById } from '@/data/topics';
-import { partiesData, getPartyById } from '@/data/parties';
+import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
 import { useParties } from '@/hooks/useParties';
 import { useProposalsByCategories } from '@/hooks/useProposals';
