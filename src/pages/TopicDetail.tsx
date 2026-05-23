@@ -1,10 +1,15 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ExternalLink, ChevronRight, ShieldCheck } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getTopicById } from '@/data/topics';
+import { partiesData } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
+import { useParties } from '@/hooks/useParties';
+import { useProposalsByCategories } from '@/hooks/useProposals';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-PT', {
@@ -37,6 +42,21 @@ const TopicDetail = () => {
   }
 
   const Icon = topic.icon;
+
+  const { data: dbParties = [], isLoading: loadingParties, isError: partiesError } = useParties();
+  const {
+    data: proposals = [],
+    isLoading: loadingProposals,
+    isError: proposalsError,
+  } = useProposalsByCategories(topic.categories);
+
+  // Group validated proposals by party DB id
+  const proposalsByPartyId = new Map<string, typeof proposals>();
+  for (const p of proposals) {
+    if (!proposalsByPartyId.has(p.party_id)) proposalsByPartyId.set(p.party_id, []);
+    proposalsByPartyId.get(p.party_id)!.push(p);
+  }
+
 
   return (
     <Layout>
@@ -147,6 +167,122 @@ const TopicDetail = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Parties & verified proposals for this topic */}
+        <Card className="animate-slide-up" style={{ animationDelay: '0.12s' }}>
+          <CardHeader>
+            <CardTitle className="text-xl">Propostas dos partidos neste tema</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Apresentamos todos os partidos. Para cada um, mostramos apenas
+              propostas oficiais verificadas, com fonte e data de verificação.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {partiesError || proposalsError ? (
+              <p className="text-sm text-destructive">
+                Não foi possível carregar a informação. Tenta novamente mais tarde.
+              </p>
+            ) : loadingParties || loadingProposals ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full" />
+                ))}
+              </div>
+            ) : (
+              partiesData.map((staticParty) => {
+                const dbParty = dbParties.find(
+                  (dp) => dp.existing_party_key === staticParty.id,
+                );
+                const partyProposals = dbParty
+                  ? proposalsByPartyId.get(dbParty.id) ?? []
+                  : [];
+
+                return (
+                  <div
+                    key={staticParty.id}
+                    className="rounded-xl border border-border p-4 space-y-3 bg-card"
+                  >
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <Link
+                        to={`/party/${staticParty.id}`}
+                        className="flex items-center gap-3 group"
+                      >
+                        <PartyLogo
+                          src={staticParty.logo}
+                          alt={`Logo ${staticParty.name}`}
+                          size="sm"
+                        />
+                        <div>
+                          <p className="font-semibold group-hover:text-primary transition-colors">
+                            {staticParty.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {staticParty.abbreviation} · {staticParty.ideology}
+                          </p>
+                        </div>
+                      </Link>
+                      <Badge variant="secondary" className="text-xs">
+                        {partyProposals.length}{' '}
+                        {partyProposals.length === 1 ? 'proposta' : 'propostas'}
+                      </Badge>
+                    </div>
+
+                    {partyProposals.length === 0 ? (
+                      <p className="text-sm text-muted-foreground italic">
+                        Nenhuma proposta oficial verificada para este tema.
+                      </p>
+                    ) : (
+                      <ul className="space-y-3">
+                        {partyProposals.map((p) => (
+                          <li
+                            key={p.id}
+                            className="rounded-lg bg-secondary/50 p-3 space-y-2"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="font-medium text-sm">{p.title}</h4>
+                              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {p.neutral_summary}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
+                              <span className="font-medium">{p.category}</span>
+                              {p.official_source_url && (
+                                <a
+                                  href={p.official_source_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  Fonte oficial
+                                </a>
+                              )}
+                              {p.source_document_name && (
+                                <span>Doc.: {p.source_document_name}</span>
+                              )}
+                              {p.last_verified_date && (
+                                <span>
+                                  Verificado a {formatDate(p.last_verified_date)}
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })
+            )}
+            <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">
+              A ausência de propostas significa apenas que ainda não existem propostas
+              oficiais verificadas para este partido neste tema. Não representa uma
+              tomada de posição editorial.
+            </p>
+          </CardContent>
+        </Card>
+
 
         {/* Compare CTA */}
         <Card className="animate-slide-up" style={{ animationDelay: '0.15s' }}>

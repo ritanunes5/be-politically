@@ -30,6 +30,11 @@ export interface Topic {
   icon: LucideIcon;
   color: string;
   parties: number;
+  /**
+   * Proposal categories (as stored in `proposals.category`) belonging to
+   * this topic. Used to fetch verified proposals per party.
+   */
+  categories: string[];
   keyFacts: TopicKeyFact[];
   sources: TopicSource[];
 }
@@ -46,6 +51,7 @@ export const topicsData: Topic[] = [
     icon: Home,
     color: 'from-orange-500 to-amber-400',
     parties: 8,
+    categories: ['Habitação'],
     keyFacts: [
       {
         label: 'Variação do preço da habitação (2024)',
@@ -88,6 +94,7 @@ export const topicsData: Topic[] = [
     icon: Stethoscope,
     color: 'from-red-500 to-rose-400',
     parties: 8,
+    categories: ['Saúde'],
     keyFacts: [
       {
         label: 'Despesa pública em saúde (2023)',
@@ -131,6 +138,7 @@ export const topicsData: Topic[] = [
     icon: Leaf,
     color: 'from-green-500 to-emerald-400',
     parties: 8,
+    categories: ['Ambiente'],
     keyFacts: [
       {
         label: 'Meta de redução de emissões até 2030',
@@ -173,6 +181,7 @@ export const topicsData: Topic[] = [
     icon: GraduationCap,
     color: 'from-blue-500 to-cyan-400',
     parties: 8,
+    categories: ['Educação'],
     keyFacts: [
       {
         label: 'Despesa pública em educação (2023)',
@@ -215,6 +224,7 @@ export const topicsData: Topic[] = [
     icon: Briefcase,
     color: 'from-politic-600 to-politic-400',
     parties: 8,
+    categories: ['Economia', 'Fiscalidade', 'Trabalho'],
     keyFacts: [
       {
         label: 'Salário mínimo nacional (2025)',
@@ -257,6 +267,7 @@ export const topicsData: Topic[] = [
     icon: Shield,
     color: 'from-slate-600 to-slate-400',
     parties: 8,
+    categories: ['Segurança', 'Justiça'],
     keyFacts: [
       {
         label: 'Crimes participados em 2023',
@@ -294,6 +305,7 @@ export const topicsData: Topic[] = [
     icon: Building,
     color: 'from-indigo-500 to-violet-400',
     parties: 8,
+    categories: [],
     keyFacts: [
       {
         label: 'Dotação total do PRR',
@@ -336,6 +348,7 @@ export const topicsData: Topic[] = [
     icon: HeartIcon,
     color: 'from-pink-500 to-rose-400',
     parties: 8,
+    categories: [],
     keyFacts: [
       {
         label: 'Taxa de risco de pobreza (2023)',
