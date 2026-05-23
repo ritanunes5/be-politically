@@ -110,8 +110,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Quota check + atomic record. `record_usage` enforces the daily limit
-    // server-side inside a single transaction and raises if exceeded, which
     // Atomic quota check + record. record_usage() runs SELECT count + INSERT
     // inside a single SECURITY DEFINER transaction and raises check_violation
     // when the free daily limit is exceeded, eliminating the TOCTOU race
