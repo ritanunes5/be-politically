@@ -1,10 +1,15 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ExternalLink, ChevronRight, ShieldCheck } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getTopicById } from '@/data/topics';
+import { partiesData, getPartyById } from '@/data/parties';
+import PartyLogo from '@/components/PartyLogo';
+import { useParties } from '@/hooks/useParties';
+import { useProposalsByCategories } from '@/hooks/useProposals';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-PT', {
