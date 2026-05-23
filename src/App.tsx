@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import Parties from "./pages/Parties";
 import PartyDetail from "./pages/PartyDetail";
 import Topics from "./pages/Topics";
+import TopicDetail from "./pages/TopicDetail";
 import Compare from "./pages/Compare";
 import Favorites from "./pages/Favorites";
 import History from "./pages/History";
