@@ -55,15 +55,64 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json();
-    const messages = body?.messages;
-    if (!Array.isArray(messages) || messages.length === 0) {
+    const rawMessages = body?.messages;
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
+      return new Response(JSON.stringify({ error: "Mensagens em falta" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (rawMessages.length > MAX_MESSAGES) {
+      return new Response(
+        JSON.stringify({ error: `Demasiadas mensagens (máx ${MAX_MESSAGES})` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    let totalChars = 0;
+    const sanitizedMessages: { role: "user" | "assistant"; content: string }[] = [];
+    for (const m of rawMessages) {
+      if (!m || typeof m !== "object") continue;
+      const role = (m as { role?: unknown }).role;
+      const content = (m as { content?: unknown }).content;
+      if (typeof role !== "string" || !ALLOWED_ROLES.has(role)) {
+        return new Response(
+          JSON.stringify({ error: "Função de mensagem inválida" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (typeof content !== "string" || content.length === 0) {
+        return new Response(
+          JSON.stringify({ error: "Conteúdo de mensagem inválido" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (content.length > MAX_MESSAGE_CHARS) {
+        return new Response(
+          JSON.stringify({ error: `Mensagem demasiado longa (máx ${MAX_MESSAGE_CHARS} caracteres)` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      totalChars += content.length;
+      if (totalChars > MAX_TOTAL_CHARS) {
+        return new Response(
+          JSON.stringify({ error: "Histórico de conversa demasiado longo" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      sanitizedMessages.push({ role: role as "user" | "assistant", content });
+    }
+
+    if (sanitizedMessages.length === 0) {
       return new Response(JSON.stringify({ error: "Mensagens em falta" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Quota check (server-side enforcement)
+    // Quota check + atomic record. `record_usage` enforces the daily limit
+    // server-side inside a single transaction and raises if exceeded, which
+    // closes the TOCTOU window between SELECT count and INSERT.
     const { data: profile } = await supabase
       .from("profiles")
       .select("subscription_tier")
