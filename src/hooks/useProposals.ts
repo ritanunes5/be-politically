@@ -38,3 +38,19 @@ export const groupByCategory = (proposals: DbProposal[]) => {
   }
   return Array.from(map.entries()); // [[category, proposals[]]]
 };
+
+export const useProposalsByCategories = (categories: string[]) =>
+  useQuery({
+    queryKey: ['proposals', 'categories', [...categories].sort()],
+    enabled: categories.length > 0,
+    queryFn: async (): Promise<DbProposal[]> => {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*')
+        .in('category', categories)
+        .eq('is_validated', true)
+        .order('category');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
