@@ -19,6 +19,12 @@ Regras absolutas:
 
 const FREE_DAILY_LIMIT = 1;
 
+// Input validation limits for client-supplied messages
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 2000;
+const MAX_TOTAL_CHARS = 20000;
+const ALLOWED_ROLES = new Set(["user", "assistant"]);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
