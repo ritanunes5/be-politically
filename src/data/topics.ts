@@ -30,6 +30,11 @@ export interface Topic {
   icon: LucideIcon;
   color: string;
   parties: number;
+  /**
+   * Proposal categories (as stored in `proposals.category`) belonging to
+   * this topic. Used to fetch verified proposals per party.
+   */
+  categories: string[];
   keyFacts: TopicKeyFact[];
   sources: TopicSource[];
 }
