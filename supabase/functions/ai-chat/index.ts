@@ -112,24 +112,17 @@ Deno.serve(async (req) => {
 
     // Quota check + atomic record. `record_usage` enforces the daily limit
     // server-side inside a single transaction and raises if exceeded, which
-    // closes the TOCTOU window between SELECT count and INSERT.
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("subscription_tier")
-      .eq("user_id", userId)
-      .maybeSingle();
-    const isPremium = profile?.subscription_tier === "premium";
-
-    if (!isPremium) {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-      const { count } = await supabase
-        .from("usage_tracking")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("action_type", "ai_chat")
-        .gte("used_at", startOfDay.toISOString());
-      if ((count ?? 0) >= FREE_DAILY_LIMIT) {
+    // Atomic quota check + record. record_usage() runs SELECT count + INSERT
+    // inside a single SECURITY DEFINER transaction and raises check_violation
+    // when the free daily limit is exceeded, eliminating the TOCTOU race
+    // between separate SELECT/INSERT calls. We await it BEFORE starting the
+    // AI request, and we rely on this single call (no extra pre-check).
+    const { error: usageError } = await supabase.rpc("record_usage", {
+      p_action_type: "ai_chat",
+    });
+    if (usageError) {
+      const msg = usageError.message ?? "";
+      if (usageError.code === "23514" || /limit reached/i.test(msg)) {
         return new Response(
           JSON.stringify({
             error: "Limite gratuito atingido",
@@ -141,6 +134,11 @@ Deno.serve(async (req) => {
           }
         );
       }
+      console.error("record_usage failed", usageError);
+      return new Response(JSON.stringify({ error: "Erro interno" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
@@ -164,10 +162,7 @@ Deno.serve(async (req) => {
           stream: true,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            ...messages.map((m: { role: string; content: string }) => ({
-              role: m.role,
-              content: m.content,
-            })),
+            ...sanitizedMessages,
           ],
         }),
       }
@@ -200,10 +195,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Record usage (best effort, don't block the stream)
-    supabase.rpc("record_usage", { p_action_type: "ai_chat" }).then(({ error }) => {
-      if (error) console.error("record_usage failed", error);
-    });
 
     return new Response(aiResp.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
