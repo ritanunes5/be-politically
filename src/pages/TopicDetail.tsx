@@ -43,6 +43,21 @@ const TopicDetail = () => {
 
   const Icon = topic.icon;
 
+  const { data: dbParties = [], isLoading: loadingParties, isError: partiesError } = useParties();
+  const {
+    data: proposals = [],
+    isLoading: loadingProposals,
+    isError: proposalsError,
+  } = useProposalsByCategories(topic.categories);
+
+  // Group validated proposals by party DB id
+  const proposalsByPartyId = new Map<string, typeof proposals>();
+  for (const p of proposals) {
+    if (!proposalsByPartyId.has(p.party_id)) proposalsByPartyId.set(p.party_id, []);
+    proposalsByPartyId.get(p.party_id)!.push(p);
+  }
+
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
