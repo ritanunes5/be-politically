@@ -170,7 +170,7 @@ const Home = () => {
                             </span>
                           </div>
                           <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                            {article.title}
+                            {decodeHtmlEntities(article.title)}
                           </h3>
                           {article.summary && (
                             <p className="text-muted-foreground text-sm line-clamp-2">{article.summary}</p>
