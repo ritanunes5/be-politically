@@ -78,6 +78,13 @@ const Home = () => {
     });
   };
 
+  const decodeHtmlEntities = (text: string | null) => {
+    if (!text) return '';
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 space-y-8">
@@ -163,7 +170,7 @@ const Home = () => {
                             </span>
                           </div>
                           <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                            {article.title}
+                            {decodeHtmlEntities(article.title)}
                           </h3>
                           {article.summary && (
                             <p className="text-muted-foreground text-sm line-clamp-2">{article.summary}</p>
@@ -179,26 +186,29 @@ const Home = () => {
           )}
         </section>
 
-        {/* AI Feature Preview */}
+        {/* AI Feature */}
         <section className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-politic-100/50 to-background dark:from-politic-900/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Explicação com IA
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Em breve, poderás usar inteligência artificial para compreender temas complexos 
-                sob a perspetiva de diferentes partidos políticos.
-              </p>
-              <Button variant="outline" disabled className="opacity-60">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Disponível numa futura versão
-              </Button>
-            </CardContent>
-          </Card>
+          <Link to="/ask">
+            <Card className="group cursor-pointer border-2 border-dashed border-primary/30 bg-gradient-to-br from-politic-100/50 to-background dark:from-politic-900/50 hover:border-primary/60 transition-all">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Explicação com IA
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">
+                  Usa inteligência artificial para compreender temas complexos 
+                  sob a perspetiva de diferentes partidos políticos.
+                </p>
+                <Button variant="outline" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Experimentar explicação com IA
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
         </section>
       </div>
     </Layout>
