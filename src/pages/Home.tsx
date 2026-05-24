@@ -78,6 +78,13 @@ const Home = () => {
     });
   };
 
+  const decodeHtmlEntities = (text: string | null) => {
+    if (!text) return '';
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 space-y-8">
