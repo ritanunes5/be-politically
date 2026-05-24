@@ -144,14 +144,10 @@ const Home = () => {
             <p className="text-muted-foreground text-center py-8">Sem notícias disponíveis.</p>
           ) : (
             <div className="grid gap-4">
-              {news.map((article) => (
-                <a
-                  key={article.id}
-                  href={article.url || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
+              {news.map((article) => {
+                const url = article.url || '';
+                const isRtp = /(^|\/\/)([^/]*\.)?rtp\.pt\//i.test(url);
+                const cardInner = (
                   <Card className="group cursor-pointer hover:border-primary/50 transition-all">
                     <CardContent className="p-5">
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -175,13 +171,48 @@ const Home = () => {
                           {article.summary && (
                             <p className="text-muted-foreground text-sm line-clamp-2">{article.summary}</p>
                           )}
+                          {isRtp && url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-3"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(url, '_blank', 'noopener,noreferrer');
+                              }}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Abrir notícia no site original
+                            </Button>
+                          )}
                         </div>
                         <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
                       </div>
                     </CardContent>
                   </Card>
-                </a>
-              ))}
+                );
+
+                if (isRtp) {
+                  return (
+                    <div key={article.id} className="block">
+                      {cardInner}
+                    </div>
+                  );
+                }
+
+                return (
+                  <a
+                    key={article.id}
+                    href={url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {cardInner}
+                  </a>
+                );
+              })}
             </div>
           )}
         </section>
