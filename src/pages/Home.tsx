@@ -155,34 +155,12 @@ const Home = () => {
                   url = url.replace(/^https?:\/\//i, 'https://www.');
                 }
 
-                const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-                  if (!url) return;
-                  // Force opening in a new top-level tab so the navigation
-                  // never happens inside the (sandboxed) preview iframe,
-                  // which would otherwise trigger ERR_BLOCKED_BY_RESPONSE
-                  // for sites like RTP that send X-Frame-Options: DENY.
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const win = window.open(url, '_blank', 'noopener,noreferrer');
-                  if (win) {
-                    win.opener = null;
-                  } else {
-                    // Popup blocked — escape the iframe by navigating the top frame.
-                    try {
-                      window.top!.location.href = url;
-                    } catch {
-                      window.location.href = url;
-                    }
-                  }
-                };
-
                 return (
                   <a
                     key={article.id}
                     href={url || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={handleClick}
                     className="block"
                   >
                     <Card className="group cursor-pointer hover:border-primary/50 transition-all">
