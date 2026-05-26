@@ -80,9 +80,32 @@ const Home = () => {
 
   const decodeHtmlEntities = (text: string | null) => {
     if (!text) return '';
+    let out = text;
+    // Unescape JSON/code-style backslash escapes: \" \' \\ \n \t \r \uXXXX
+    try {
+      out = out
+        .replace(/\\u([\dA-Fa-f]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '')
+        .replace(/\\t/g, ' ')
+        .replace(/\\"/g, '"')
+        .replace(/\\'/g, "'")
+        .replace(/\\\\/g, '\\');
+    } catch {}
+    // Decode HTML entities (&quot; &amp; &#x27; &#39; etc.) — run twice for double-encoded
     const textarea = document.createElement('textarea');
-    textarea.innerHTML = text;
-    return textarea.value;
+    textarea.innerHTML = out;
+    out = textarea.value;
+    textarea.innerHTML = out;
+    out = textarea.value;
+    // Strip HTML tags but keep paragraph/line breaks
+    out = out
+      .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+      .replace(/<\/(p|div|li)>/gi, '\n')
+      .replace(/<[^>]+>/g, '');
+    // Normalize whitespace: collapse spaces, preserve blank lines
+    out = out.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    return out;
   };
 
   return (
@@ -184,7 +207,7 @@ const Home = () => {
                               {decodeHtmlEntities(article.title)}
                             </h3>
                             {article.summary && (
-                              <p className="text-muted-foreground text-sm line-clamp-2">{decodeHtmlEntities(article.summary)}</p>
+                              <p className="text-muted-foreground text-sm line-clamp-2 whitespace-pre-line">{decodeHtmlEntities(article.summary)}</p>
                             )}
                           </div>
                           <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
