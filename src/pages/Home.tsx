@@ -177,44 +177,60 @@ const Home = () => {
                 if (isRtp && url && !/^https?:\/\/(www\.)?rtp\.pt/i.test(url)) {
                   url = url.replace(/^https?:\/\//i, 'https://www.');
                 }
+                const hasValidUrl = !!url && url !== '#' && url !== 'https://';
 
-                return (
+                const cardContent = (
+                  <Card className={cn("group transition-all", hasValidUrl ? "cursor-pointer hover:border-primary/50" : "opacity-80 border-dashed")}>
+                    <CardContent className="p-5">
+                      <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                              {article.source}
+                            </span>
+                            {article.topic && (
+                              <Badge variant="outline" className={cn("text-xs", TOPIC_COLORS[article.topic] || "")}>
+                                {article.topic}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(article.published_at)}
+                            </span>
+                          </div>
+                          <h3 className={cn("font-semibold text-lg mb-1 transition-colors", hasValidUrl && "group-hover:text-primary")}>
+                            {decodeHtmlEntities(article.title)}
+                          </h3>
+                          {article.summary && (
+                            <p className="text-muted-foreground text-sm line-clamp-2 whitespace-pre-line">{decodeHtmlEntities(article.summary)}</p>
+                          )}
+                          {!hasValidUrl && (
+                            <p className="text-xs text-muted-foreground mt-2 italic">Link indisponível</p>
+                          )}
+                        </div>
+                        {hasValidUrl ? (
+                          <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
+                        ) : (
+                          <ExternalLink className="w-5 h-5 text-muted-foreground/40 shrink-0" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+
+                return hasValidUrl ? (
                   <a
                     key={article.id}
-                    href={url || '#'}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <Card className="group cursor-pointer hover:border-primary/50 transition-all">
-                      <CardContent className="p-5">
-                        <div className="flex flex-col md:flex-row md:items-center gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                {article.source}
-                              </span>
-                              {article.topic && (
-                                <Badge variant="outline" className={cn("text-xs", TOPIC_COLORS[article.topic] || "")}>
-                                  {article.topic}
-                                </Badge>
-                              )}
-                              <span className="text-xs text-muted-foreground">
-                                {formatDate(article.published_at)}
-                              </span>
-                            </div>
-                            <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                              {decodeHtmlEntities(article.title)}
-                            </h3>
-                            {article.summary && (
-                              <p className="text-muted-foreground text-sm line-clamp-2 whitespace-pre-line">{decodeHtmlEntities(article.summary)}</p>
-                            )}
-                          </div>
-                          <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
-                        </div>
-                      </CardContent>
-                    </Card>
+                    {cardContent}
                   </a>
+                ) : (
+                  <div key={article.id} className="block">
+                    {cardContent}
+                  </div>
                 );
               })}
             </div>
