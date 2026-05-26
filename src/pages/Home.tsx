@@ -207,7 +207,7 @@ const Home = () => {
                               {decodeHtmlEntities(article.title)}
                             </h3>
                             {article.summary && (
-                              <p className="text-muted-foreground text-sm line-clamp-2">{decodeHtmlEntities(article.summary)}</p>
+                              <p className="text-muted-foreground text-sm line-clamp-2 whitespace-pre-line">{decodeHtmlEntities(article.summary)}</p>
                             )}
                           </div>
                           <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all shrink-0" />
