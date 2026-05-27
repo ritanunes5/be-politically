@@ -7,22 +7,21 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const Parties = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const filteredParties = partiesData.filter((party) =>
     party.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     party.abbreviation.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+  const handleFavoriteClick = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
+    toggleFavorite(id, 'party');
   };
 
   return (
