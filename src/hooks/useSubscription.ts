@@ -89,7 +89,25 @@ export function useSubscription(): SubscriptionState {
     load();
   }, [load]);
 
-  const isPremium = tier === 'premium';
+  // If the locally cached subscription appears expired, ask the server to re-sync with Stripe.
+  // This ensures premium access is revoked automatically once the renewal period ends.
+  useEffect(() => {
+    if (!user) return;
+    if (tier !== 'premium') return;
+    const expired =
+      (periodEnd && new Date(periodEnd).getTime() <= Date.now()) ||
+      status === 'canceled' ||
+      status === 'past_due' ||
+      status === 'incomplete';
+    if (expired) {
+      supabase.functions.invoke('check-subscription').finally(() => load());
+    }
+  }, [user, tier, status, periodEnd, load]);
+
+  // Premium is only valid if: tier=premium AND status active/trialing AND period_end in the future
+  const statusOk = status === 'active' || status === 'trialing';
+  const periodOk = !periodEnd || new Date(periodEnd).getTime() > Date.now();
+  const isPremium = tier === 'premium' && statusOk && periodOk;
   const remainingComparisons = isPremium
     ? Infinity
     : Math.max(0, FREE_LIMITS.comparisonsPerDay - comparisonsToday);

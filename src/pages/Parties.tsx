@@ -7,22 +7,21 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const Parties = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const filteredParties = partiesData.filter((party) =>
     party.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     party.abbreviation.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+  const handleFavoriteClick = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
+    toggleFavorite(id, 'party');
   };
 
   return (
@@ -70,11 +69,11 @@ const Parties = () => {
                           variant="ghost"
                           size="icon"
                           className="shrink-0 -mr-2"
-                          onClick={(e) => toggleFavorite(party.id, e)}
+                          onClick={(e) => handleFavoriteClick(party.id, e)}
                         >
                           <Heart
                             className={`w-4 h-4 ${
-                              favorites.includes(party.id)
+                              isFavorite(party.id, 'party')
                                 ? 'fill-primary text-primary'
                                 : 'text-muted-foreground'
                             }`}

@@ -35,29 +35,42 @@ const AvatarUpload = () => {
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const uploadBlob = async (blob: Blob, ext: string) => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Sessão expirada. Inicia sessão novamente.');
+      return;
+    }
+    const allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
+    const safeExt = allowedExt.includes(ext) ? ext : 'jpg';
     setUploading(true);
     try {
-      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const path = `${user.id}/avatar-${Date.now()}.${safeExt}`;
       const { error: upErr } = await supabase.storage
         .from('avatars')
-        .upload(path, blob, { upsert: true, contentType: blob.type || `image/${ext}` });
+        .upload(path, blob, {
+          upsert: true,
+          contentType: blob.type || `image/${safeExt}`,
+        });
       if (upErr) throw upErr;
 
       // Store the storage path (not a public URL). The bucket is private and
       // we resolve signed URLs on read in useProfile.
-      const { error: updErr } = await supabase
+      const { data: updated, error: updErr } = await supabase
         .from('profiles')
         .update({ avatar_url: path })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .select('user_id');
       if (updErr) throw updErr;
+      if (!updated || updated.length === 0) {
+        throw new Error('Perfil não encontrado. Tenta sair e voltar a entrar.');
+      }
 
       await refresh();
       emitProfileUpdated();
       toast.success('Foto de perfil atualizada');
     } catch (err) {
-      console.error(err);
-      toast.error('Não foi possível atualizar a foto.');
+      console.error('avatar upload error', err);
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido';
+      toast.error(`Não foi possível atualizar a foto: ${msg}`);
     } finally {
       setUploading(false);
     }
