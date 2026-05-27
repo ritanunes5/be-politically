@@ -9,10 +9,12 @@ import { getPartyById } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
 import { usePartyByKey } from '@/hooks/useParties';
 import { useProposalsByParty, groupByCategory } from '@/hooks/useProposals';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const PartyDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
+  const isFavorite = id ? checkIsFavorite(id, 'party') : false;
 
   const staticParty = id ? getPartyById(id) : undefined;
   const { data: dbParty, isLoading: loadingParty } = usePartyByKey(id);
