@@ -89,7 +89,10 @@ export function useSubscription(): SubscriptionState {
     load();
   }, [load]);
 
-  const isPremium = tier === 'premium';
+  // Premium is only valid if: tier=premium AND status active/trialing AND period_end in the future
+  const statusOk = status === 'active' || status === 'trialing';
+  const periodOk = !periodEnd || new Date(periodEnd).getTime() > Date.now();
+  const isPremium = tier === 'premium' && statusOk && periodOk;
   const remainingComparisons = isPremium
     ? Infinity
     : Math.max(0, FREE_LIMITS.comparisonsPerDay - comparisonsToday);
