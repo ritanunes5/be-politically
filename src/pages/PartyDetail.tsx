@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Heart, Scale, FileText, ExternalLink, ShieldCheck, Globe } from 'lucide-react';
 
-import { toast } from 'sonner';
+
 import { getPartyById } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
 import { usePartyByKey } from '@/hooks/useParties';
