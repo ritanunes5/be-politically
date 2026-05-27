@@ -69,11 +69,11 @@ const Parties = () => {
                           variant="ghost"
                           size="icon"
                           className="shrink-0 -mr-2"
-                          onClick={(e) => toggleFavorite(party.id, e)}
+                          onClick={(e) => handleFavoriteClick(party.id, e)}
                         >
                           <Heart
                             className={`w-4 h-4 ${
-                              favorites.includes(party.id)
+                              isFavorite(party.id, 'party')
                                 ? 'fill-primary text-primary'
                                 : 'text-muted-foreground'
                             }`}
