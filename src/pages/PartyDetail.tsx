@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Heart, Scale, FileText, ExternalLink, ShieldCheck, Globe } from 'lucide-react';
-import { useState } from 'react';
+
 import { toast } from 'sonner';
 import { getPartyById } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
