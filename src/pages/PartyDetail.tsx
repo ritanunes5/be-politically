@@ -41,8 +41,8 @@ const PartyDetail = () => {
   }
 
   const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? 'Removido dos favoritos' : 'Adicionado aos favoritos');
+    if (!id) return;
+    toggleFavorite(id, 'party');
   };
 
   const partyName = dbParty?.name ?? staticParty.name;
