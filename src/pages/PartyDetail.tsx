@@ -10,6 +10,7 @@ import PartyLogo from '@/components/PartyLogo';
 import { usePartyByKey } from '@/hooks/useParties';
 import { useProposalsByParty, groupByCategory } from '@/hooks/useProposals';
 import { useFavorites } from '@/hooks/useFavorites';
+import FavoriteButton from '@/components/FavoriteButton';
 
 const PartyDetail = () => {
   const { id } = useParams<{ id: string }>();
