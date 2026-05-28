@@ -10,6 +10,7 @@ import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
 import { useParties } from '@/hooks/useParties';
 import { useProposalsByCategories } from '@/hooks/useProposals';
+import FavoriteButton from '@/components/FavoriteButton';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-PT', {
@@ -80,7 +81,12 @@ const TopicDetail = () => {
                 <Icon className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold font-display mb-2">{topic.name}</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <h1 className="text-3xl font-bold font-display mb-2">{topic.name}</h1>
+                  {id && (
+                    <FavoriteButton itemId={id} itemType="topic" showLabel size="sm" variant="outline" />
+                  )}
+                </div>
                 <p className="text-muted-foreground">{topic.description}</p>
               </div>
             </div>
@@ -240,7 +246,10 @@ const TopicDetail = () => {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <h4 className="font-medium text-sm">{p.title}</h4>
-                              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                              <div className="flex items-center gap-1 shrink-0">
+                                <FavoriteButton itemId={p.id} itemType="proposal" />
+                                <ShieldCheck className="w-4 h-4 text-primary mt-0.5" />
+                              </div>
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {p.neutral_summary}
