@@ -81,7 +81,12 @@ const TopicDetail = () => {
                 <Icon className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold font-display mb-2">{topic.name}</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <h1 className="text-3xl font-bold font-display mb-2">{topic.name}</h1>
+                  {id && (
+                    <FavoriteButton itemId={id} itemType="topic" showLabel size="sm" variant="outline" />
+                  )}
+                </div>
                 <p className="text-muted-foreground">{topic.description}</p>
               </div>
             </div>
