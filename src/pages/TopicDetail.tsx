@@ -246,7 +246,10 @@ const TopicDetail = () => {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <h4 className="font-medium text-sm">{p.title}</h4>
-                              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                              <div className="flex items-center gap-1 shrink-0">
+                                <FavoriteButton itemId={p.id} itemType="proposal" />
+                                <ShieldCheck className="w-4 h-4 text-primary mt-0.5" />
+                              </div>
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {p.neutral_summary}
