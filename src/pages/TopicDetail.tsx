@@ -10,6 +10,7 @@ import { partiesData } from '@/data/parties';
 import PartyLogo from '@/components/PartyLogo';
 import { useParties } from '@/hooks/useParties';
 import { useProposalsByCategories } from '@/hooks/useProposals';
+import FavoriteButton from '@/components/FavoriteButton';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-PT', {
