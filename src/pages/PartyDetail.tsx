@@ -157,7 +157,10 @@ const PartyDetail = () => {
                     <div key={p.id} className="p-4 rounded-xl bg-secondary/50 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <h4 className="font-semibold">{p.title}</h4>
-                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-1" />
+                        <div className="flex items-center gap-1 shrink-0">
+                          <FavoriteButton itemId={p.id} itemType="proposal" />
+                          <ShieldCheck className="w-4 h-4 text-primary mt-1" />
+                        </div>
                       </div>
                       <p className="text-sm text-muted-foreground">{p.neutral_summary}</p>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
