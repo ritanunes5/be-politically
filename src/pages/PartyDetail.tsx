@@ -175,10 +175,11 @@ const PartyDetail = () => {
                             Fonte oficial
                           </a>
                         )}
+                        {p.source_name && <span>{p.source_name}</span>}
                         {p.source_document_name && <span>Doc.: {p.source_document_name}</span>}
-                        {p.last_verified_date && (
+                        {(p.last_verified_at || p.last_verified_date) && (
                           <span>
-                            Verificado: {new Date(p.last_verified_date).toLocaleDateString('pt-PT')}
+                            Última verificação: {new Date((p.last_verified_at || p.last_verified_date)!).toLocaleDateString('pt-PT')}
                           </span>
                         )}
                       </div>
