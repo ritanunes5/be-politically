@@ -10,6 +10,9 @@ export interface DbProposal {
   official_source_url: string | null;
   source_document_name: string | null;
   last_verified_date: string | null;
+  last_verified_at?: string | null;
+  source_name?: string | null;
+  status?: string;
   is_validated: boolean;
   created_at: string;
 }

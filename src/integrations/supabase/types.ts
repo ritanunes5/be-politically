@@ -140,6 +140,56 @@ export type Database = {
         }
         Relationships: []
       }
+      party_source_pages: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          last_content_hash: string | null
+          last_status: string | null
+          party_id: string
+          source_document_name: string | null
+          source_name: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_content_hash?: string | null
+          last_status?: string | null
+          party_id: string
+          source_document_name?: string | null
+          source_name: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_content_hash?: string | null
+          last_status?: string | null
+          party_id?: string
+          source_document_name?: string | null
+          source_name?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "party_source_pages_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -229,40 +279,58 @@ export type Database = {
       proposals: {
         Row: {
           category: string
+          content_hash: string | null
           created_at: string
           id: string
           is_validated: boolean
+          last_verified_at: string | null
           last_verified_date: string | null
           neutral_summary: string
           official_source_url: string | null
+          original_excerpt: string | null
           party_id: string
           source_document_name: string | null
+          source_name: string | null
+          source_published_at: string | null
+          status: string
           title: string
           updated_at: string
         }
         Insert: {
           category: string
+          content_hash?: string | null
           created_at?: string
           id?: string
           is_validated?: boolean
+          last_verified_at?: string | null
           last_verified_date?: string | null
           neutral_summary: string
           official_source_url?: string | null
+          original_excerpt?: string | null
           party_id: string
           source_document_name?: string | null
+          source_name?: string | null
+          source_published_at?: string | null
+          status?: string
           title: string
           updated_at?: string
         }
         Update: {
           category?: string
+          content_hash?: string | null
           created_at?: string
           id?: string
           is_validated?: boolean
+          last_verified_at?: string | null
           last_verified_date?: string | null
           neutral_summary?: string
           official_source_url?: string | null
+          original_excerpt?: string | null
           party_id?: string
           source_document_name?: string | null
+          source_name?: string | null
+          source_published_at?: string | null
+          status?: string
           title?: string
           updated_at?: string
         }
