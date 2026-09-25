@@ -235,7 +235,7 @@ const TopicDetail = () => {
 
                     {partyProposals.length === 0 ? (
                       <p className="text-sm text-muted-foreground italic">
-                        Nenhuma proposta oficial verificada para este tema.
+                        Nenhuma proposta oficial verificada encontrada para este tema.
                       </p>
                     ) : (
                       <ul className="space-y-3">
