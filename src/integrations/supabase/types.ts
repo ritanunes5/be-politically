@@ -105,6 +105,9 @@ export type Database = {
         Row: {
           acronym: string
           created_at: string
+          electoral_program_name: string | null
+          electoral_program_url: string | null
+          electoral_program_year: number | null
           existing_party_key: string
           id: string
           last_verified_date: string | null
@@ -117,6 +120,9 @@ export type Database = {
         Insert: {
           acronym: string
           created_at?: string
+          electoral_program_name?: string | null
+          electoral_program_url?: string | null
+          electoral_program_year?: number | null
           existing_party_key: string
           id?: string
           last_verified_date?: string | null
@@ -129,6 +135,9 @@ export type Database = {
         Update: {
           acronym?: string
           created_at?: string
+          electoral_program_name?: string | null
+          electoral_program_url?: string | null
+          electoral_program_year?: number | null
           existing_party_key?: string
           id?: string
           last_verified_date?: string | null
@@ -148,6 +157,7 @@ export type Database = {
           last_checked_at: string | null
           last_content_hash: string | null
           last_status: string | null
+          needs_reverification: boolean
           party_id: string
           source_document_name: string | null
           source_name: string
@@ -161,6 +171,7 @@ export type Database = {
           last_checked_at?: string | null
           last_content_hash?: string | null
           last_status?: string | null
+          needs_reverification?: boolean
           party_id: string
           source_document_name?: string | null
           source_name: string
@@ -174,6 +185,7 @@ export type Database = {
           last_checked_at?: string | null
           last_content_hash?: string | null
           last_status?: string | null
+          needs_reverification?: boolean
           party_id?: string
           source_document_name?: string | null
           source_name?: string
