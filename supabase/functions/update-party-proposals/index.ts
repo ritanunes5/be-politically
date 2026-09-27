@@ -9,10 +9,20 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 const CATEGORIES = ['Habitação', 'Saúde', 'Ambiente', 'Educação', 'Economia', 'Fiscalidade', 'Trabalho', 'Segurança', 'Justiça', 'Infraestruturas', 'Transportes', 'Proteção Social'];
 
 async function pdfToText(buf: ArrayBuffer) {
-  const { extractText, getDocumentProxy } = await import('npm:unpdf@0.12.1');
+  // Large programmes exceed edge CPU limits; read up to 40 evenly spaced pages.
+  const { getDocumentProxy } = await import('npm:unpdf@0.12.1');
   const pdf = await getDocumentProxy(new Uint8Array(buf));
-  const { text } = await extractText(pdf, { mergePages: true });
-  return (Array.isArray(text) ? text.join(' ') : text).replace(/\s+/g, ' ').trim();
+  const total = pdf.numPages, MAX = 40;
+  const pages = total <= MAX ? [...Array(total).keys()].map((i) => i + 1)
+    : [...Array(MAX).keys()].map((i) => 1 + Math.floor((i * total) / MAX));
+  const parts: string[] = [];
+  for (const n of pages) {
+    const pg = await pdf.getPage(n);
+    const tc = await pg.getTextContent();
+    parts.push(tc.items.map((it: any) => it.str ?? '').join(' '));
+    pg.cleanup();
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 const BANNED = /\b(bom|boa|mau|má|melhor|pior|radical|perigos[oa]|benéfic[oa]|prejudicial|extremista|perfeit[oa]|terrível)\b/i;
 
