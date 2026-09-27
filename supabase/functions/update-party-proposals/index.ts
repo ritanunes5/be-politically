@@ -132,8 +132,9 @@ Deno.serve(async (req) => {
       const n = Math.ceil(text.length / CH);
       const idx = n <= 4 ? [...Array(n).keys()] : [0, 1, 2, 3].map((i) => Math.floor((i * n) / 4));
       const extracted: Awaited<ReturnType<typeof extractWithAI>> = [];
+      const aiErrors: string[] = [];
       for (const i of idx) {
-        try { extracted.push(...(await extractWithAI(text.slice(i * CH, (i + 1) * CH), partyName))); } catch (e) { console.error('AI chunk failed', i, e); }
+        try { extracted.push(...(await extractWithAI(text.slice(i * CH, (i + 1) * CH), partyName))); } catch (e) { aiErrors.push((e as Error).message); console.error('AI chunk failed', i, e); }
       }
       const normText = norm(text);
       const seen = new Set<string>();
@@ -171,7 +172,7 @@ Deno.serve(async (req) => {
       if (stale.length) await sb.from('proposals').update({ status: 'outdated' }).in('id', stale);
 
       await sb.from('party_source_pages').update({ last_checked_at: now, last_content_hash: pageHash, last_status: `updated:${saved}` }).eq('id', page.id);
-      report.push({ url: page.url, result: 'updated', saved, outdated: stale.length });
+      report.push({ url: page.url, result: 'updated', saved, textLength: text.length, extracted: extracted.length, aiErrors, outdated: stale.length });
     } catch (e) {
       // Source unreachable: keep data, but record the failure. Proposals keep their last verification date.
       await sb.from('party_source_pages').update({ last_checked_at: now, last_status: `error: ${(e as Error).message}` }).eq('id', page.id);
