@@ -101,11 +101,13 @@ Deno.serve(async (req) => {
 
   const { data: pages, error } = await sb
     .from('party_source_pages')
-    .select('*, parties(name)')
+    .select('*, parties(name, existing_party_key)')
     .eq('active', true);
+  let onlyKey: string | null = null;
+  try { const b = await req.json(); if (typeof b?.party_key === 'string') onlyKey = b.party_key; } catch { /* no body */ }
   if (error) return json({ error: error.message }, 500);
 
-  for (const page of pages ?? []) {
+  for (const page of (pages ?? []).filter((pg: any) => !onlyKey || pg.parties?.existing_party_key === onlyKey)) {
     const partyName = (page as any).parties?.name ?? '';
     try {
       const r = await fetch(page.url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BePolitic-Verifier/1.0)' }, signal: AbortSignal.timeout(45000) });
