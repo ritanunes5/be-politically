@@ -24,7 +24,7 @@ async function sha256(t: string) {
   return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+const norm = (s: string) => s.toLowerCase().replace(/-\s+/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 
 function htmlToText(html: string) {
   return html
@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
           content_hash: hash,
           status: neutral ? 'verified' : 'unverified',
         }, { onConflict: 'party_id,content_hash' });
-        if (!upErr) saved++;
+        if (!upErr) saved++; else console.error('upsert', upErr.message);
       }
 
       // Previously auto-extracted proposals from this page that are no longer present -> outdated (never deleted).
