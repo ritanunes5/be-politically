@@ -86,7 +86,7 @@ async function extractWithAI(text: string, partyName: string) {
       tool_choice: { type: 'function', function: { name: 'save_proposals' } },
     }),
   });
-  if (!res.ok) throw new Error(`AI ${res.status}`);
+  if (!res.ok) throw new Error(`AI ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
   const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
   return (args ? JSON.parse(args).proposals : []) as { title: string; neutral_summary: string; category: string; excerpt: string }[];
