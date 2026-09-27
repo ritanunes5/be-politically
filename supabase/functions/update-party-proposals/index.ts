@@ -5,7 +5,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
-const CATEGORIES = ['Habitação', 'Saúde', 'Ambiente', 'Educação', 'Economia', 'Fiscalidade', 'Trabalho', 'Segurança', 'Justiça', 'Direitos dos Animais'];
+// Categories map 1:1 onto the existing "Explorar Temas" topics (see src/data/topics.ts). No new topics.
+const CATEGORIES = ['Habitação', 'Saúde', 'Ambiente', 'Educação', 'Economia', 'Fiscalidade', 'Trabalho', 'Segurança', 'Justiça', 'Infraestruturas', 'Transportes', 'Proteção Social'];
+
+async function pdfToText(buf: ArrayBuffer) {
+  const { extractText, getDocumentProxy } = await import('npm:unpdf@0.12.1');
+  const pdf = await getDocumentProxy(new Uint8Array(buf));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return (Array.isArray(text) ? text.join(' ') : text).replace(/\s+/g, ' ').trim();
+}
 const BANNED = /\b(bom|boa|mau|má|melhor|pior|radical|perigos[oa]|benéfic[oa]|prejudicial|extremista|perfeit[oa]|terrível)\b/i;
 
 const json = (b: unknown, s = 200) =>
@@ -100,9 +108,10 @@ Deno.serve(async (req) => {
   for (const page of pages ?? []) {
     const partyName = (page as any).parties?.name ?? '';
     try {
-      const r = await fetch(page.url, { headers: { 'User-Agent': 'BePolitic-Verifier/1.0' }, signal: AbortSignal.timeout(20000) });
+      const r = await fetch(page.url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BePolitic-Verifier/1.0)' }, signal: AbortSignal.timeout(45000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const text = htmlToText(await r.text());
+      const isPdf = (r.headers.get('content-type') ?? '').includes('pdf') || page.url.toLowerCase().includes('.pdf');
+      const text = isPdf ? await pdfToText(await r.arrayBuffer()) : htmlToText(await r.text());
       if (text.length < 200) throw new Error('page content too short');
       const pageHash = await sha256(text);
       const published = r.headers.get('last-modified');
@@ -111,12 +120,19 @@ Deno.serve(async (req) => {
         // Unchanged: re-confirm existing verified proposals from this page.
         await sb.from('proposals').update({ last_verified_at: now, last_verified_date: now.slice(0, 10) })
           .eq('party_id', page.party_id).eq('official_source_url', page.url).eq('status', 'verified');
-        await sb.from('party_source_pages').update({ last_checked_at: now, last_status: 'unchanged' }).eq('id', page.id);
+        await sb.from('party_source_pages').update({ last_checked_at: now, last_status: 'unchanged', needs_reverification: false }).eq('id', page.id);
         report.push({ url: page.url, result: 'unchanged' });
         continue;
       }
 
-      const extracted = await extractWithAI(text, partyName);
+      // Long programmes: analyse up to 4 evenly spaced chunks of ~50k chars.
+      const CH = 50000;
+      const n = Math.ceil(text.length / CH);
+      const idx = n <= 4 ? [...Array(n).keys()] : [0, 1, 2, 3].map((i) => Math.floor((i * n) / 4));
+      const extracted: Awaited<ReturnType<typeof extractWithAI>> = [];
+      for (const i of idx) {
+        try { extracted.push(...(await extractWithAI(text.slice(i * CH, (i + 1) * CH), partyName))); } catch (e) { console.error('AI chunk failed', i, e); }
+      }
       const normText = norm(text);
       const seen = new Set<string>();
       let saved = 0;
