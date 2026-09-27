@@ -227,15 +227,28 @@ const TopicDetail = () => {
                           </p>
                         </div>
                       </Link>
-                      <Badge variant="secondary" className="text-xs">
-                        {partyProposals.length}{' '}
-                        {partyProposals.length === 1 ? 'proposta' : 'propostas'}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {dbParty?.electoral_program_url && (
+                          <a
+                            href={dbParty.electoral_program_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            Ver programa eleitoral
+                          </a>
+                        )}
+                        <Badge variant="secondary" className="text-xs">
+                          {partyProposals.length}{' '}
+                          {partyProposals.length === 1 ? 'proposta' : 'propostas'}
+                        </Badge>
+                      </div>
                     </div>
 
                     {partyProposals.length === 0 ? (
                       <p className="text-sm text-muted-foreground italic">
-                        Nenhuma proposta oficial verificada encontrada para este tema.
+                        Nenhuma proposta oficial verificada para este tema.
                       </p>
                     ) : (
                       <ul className="space-y-3">

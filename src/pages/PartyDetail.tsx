@@ -132,7 +132,7 @@ const PartyDetail = () => {
                 Propostas verificadas
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <p className="text-muted-foreground text-sm">
                 {loadingProposals
                   ? 'A carregar propostas...'
@@ -140,6 +140,19 @@ const PartyDetail = () => {
                     ? 'Ainda não existem propostas validadas para este partido.'
                     : `${proposals.length} propostas validadas, agrupadas por categoria.`}
               </p>
+              {dbParty?.electoral_program_url && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Fonte oficial · {dbParty.electoral_program_year ? `Programa Eleitoral ${dbParty.electoral_program_year}` : dbParty.electoral_program_name}
+                  </p>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={dbParty.electoral_program_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Ver programa eleitoral
+                    </a>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
