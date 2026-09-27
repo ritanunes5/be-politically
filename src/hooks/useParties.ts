@@ -10,6 +10,9 @@ export interface DbParty {
   official_website: string | null;
   logo_url: string | null;
   last_verified_date: string | null;
+  electoral_program_url?: string | null;
+  electoral_program_name?: string | null;
+  electoral_program_year?: number | null;
 }
 
 export const useParties = () =>

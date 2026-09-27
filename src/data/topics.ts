@@ -305,7 +305,7 @@ export const topicsData: Topic[] = [
     icon: Building,
     color: 'from-indigo-500 to-violet-400',
     parties: 8,
-    categories: [],
+    categories: ['Infraestruturas', 'Transportes'],
     keyFacts: [
       {
         label: 'Dotação total do PRR',
@@ -348,7 +348,7 @@ export const topicsData: Topic[] = [
     icon: HeartIcon,
     color: 'from-pink-500 to-rose-400',
     parties: 8,
-    categories: [],
+    categories: ['Proteção Social'],
     keyFacts: [
       {
         label: 'Taxa de risco de pobreza (2023)',
