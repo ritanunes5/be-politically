@@ -127,19 +127,21 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only the scheduler (holding CRON_SECRET) may trigger a refresh.
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  // Public aggregation endpoint: ingests public RSS feeds and writes via the
-  // internal service-role client. No caller auth required so the scheduled
-  // cron job (which uses the anon key) can trigger refreshes.
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+  // Only the scheduler (holding the vault-stored cron secret) may trigger a refresh.
+  {
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, serviceKey);
+    const { data: authorized } = await admin.rpc("verify_cron_secret", {
+      p_secret: req.headers.get("x-cron-secret") ?? "",
+    });
+    if (authorized !== true) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

@@ -430,6 +430,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_cron_secret: { Args: { p_secret: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
