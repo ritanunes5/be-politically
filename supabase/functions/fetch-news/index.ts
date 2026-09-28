@@ -127,6 +127,15 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Only the scheduler (holding CRON_SECRET) may trigger a refresh.
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   // Public aggregation endpoint: ingests public RSS feeds and writes via the
   // internal service-role client. No caller auth required so the scheduled
   // cron job (which uses the anon key) can trigger refreshes.
