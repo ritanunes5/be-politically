@@ -105,6 +105,12 @@ async function extractWithAI(text: string, partyName: string) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
+  // Only the scheduler (holding CRON_SECRET) may trigger this job.
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  if (!cronSecret || req.headers.get('x-cron-secret') !== cronSecret) {
+    return json({ error: 'Unauthorized' }, 401);
+  }
+
   const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
   const now = new Date().toISOString();
   const report: Record<string, unknown>[] = [];

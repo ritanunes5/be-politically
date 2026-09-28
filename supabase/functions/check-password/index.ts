@@ -59,7 +59,25 @@ Deno.serve(async (req) => {
       );
     }
 
-    const result = evaluate(password);
+    const strength = evaluate(password);
+
+    // Leaked-password check (Have I Been Pwned, k-anonymity: only the first
+    // 5 chars of the SHA-1 hash leave the server).
+    const digest = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(password));
+    const hash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+    const prefix = hash.slice(0, 5);
+    const suffix = hash.slice(5);
+    const hibp = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+      headers: { "Add-Padding": "true", "User-Agent": "BePolitic-PasswordCheck" },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!hibp.ok) throw new Error(`HIBP ${hibp.status}`);
+    const compromised = (await hibp.text()).split("\n").some((line) => {
+      const [s, count] = line.trim().split(":");
+      return s === suffix && Number(count) > 0;
+    });
+
+    const result = { ...strength, compromised, valid: strength.valid && !compromised };
 
     return new Response(JSON.stringify(result), {
       status: 200,
