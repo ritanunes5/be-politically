@@ -13,6 +13,7 @@ export interface DbProposal {
   last_verified_at?: string | null;
   source_name?: string | null;
   status?: string;
+  source_page?: number | null;
   is_validated: boolean;
   created_at: string;
 }
