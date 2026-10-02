@@ -157,10 +157,15 @@ export type Database = {
           last_checked_at: string | null
           last_content_hash: string | null
           last_status: string | null
+          lease_until: string | null
           needs_reverification: boolean
+          next_page: number | null
           party_id: string
+          pass_started_at: string | null
+          paused_reason: string | null
           source_document_name: string | null
           source_name: string
+          total_pages: number | null
           updated_at: string
           url: string
         }
@@ -171,10 +176,15 @@ export type Database = {
           last_checked_at?: string | null
           last_content_hash?: string | null
           last_status?: string | null
+          lease_until?: string | null
           needs_reverification?: boolean
+          next_page?: number | null
           party_id: string
+          pass_started_at?: string | null
+          paused_reason?: string | null
           source_document_name?: string | null
           source_name: string
+          total_pages?: number | null
           updated_at?: string
           url: string
         }
@@ -185,10 +195,15 @@ export type Database = {
           last_checked_at?: string | null
           last_content_hash?: string | null
           last_status?: string | null
+          lease_until?: string | null
           needs_reverification?: boolean
+          next_page?: number | null
           party_id?: string
+          pass_started_at?: string | null
+          paused_reason?: string | null
           source_document_name?: string | null
           source_name?: string
+          total_pages?: number | null
           updated_at?: string
           url?: string
         }
@@ -303,6 +318,7 @@ export type Database = {
           party_id: string
           source_document_name: string | null
           source_name: string | null
+          source_page: number | null
           source_published_at: string | null
           status: string
           title: string
@@ -322,6 +338,7 @@ export type Database = {
           party_id: string
           source_document_name?: string | null
           source_name?: string | null
+          source_page?: number | null
           source_published_at?: string | null
           status?: string
           title: string
@@ -341,6 +358,7 @@ export type Database = {
           party_id?: string
           source_document_name?: string | null
           source_name?: string | null
+          source_page?: number | null
           source_published_at?: string | null
           status?: string
           title?: string
@@ -355,6 +373,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      topics: {
+        Row: {
+          categories: string[]
+          created_at: string
+          description_hint: string | null
+          key: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          categories: string[]
+          created_at?: string
+          description_hint?: string | null
+          key: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          description_hint?: string | null
+          key?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       usage_tracking: {
         Row: {
