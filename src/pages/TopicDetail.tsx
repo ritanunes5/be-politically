@@ -283,6 +283,7 @@ const TopicDetail = () => {
                               {p.source_document_name && (
                                 <span>Doc.: {p.source_document_name}</span>
                               )}
+                              {p.source_page && <span>Página {p.source_page}</span>}
                               {p.last_verified_date && (
                                 <span>
                                   Verificado a {formatDate(p.last_verified_date)}
